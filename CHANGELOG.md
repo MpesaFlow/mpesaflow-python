@@ -1,5 +1,13 @@
 # Changelog
 
+## 0.1.0-alpha.1 (2024-09-30)
+
+Full Changelog: [v0.0.1-alpha.2...v0.1.0-alpha.1](https://github.com/MpesaFlow/mpesaflow-python/compare/v0.0.1-alpha.2...v0.1.0-alpha.1)
+
+### Features
+
+* **api:** update via SDK Studio ([#14](https://github.com/MpesaFlow/mpesaflow-python/issues/14)) ([c177ea0](https://github.com/MpesaFlow/mpesaflow-python/commit/c177ea0e35d7be5a915702e95ee4100d28989213))
+
 ## 0.0.1-alpha.2 (2024-09-30)
 
 Full Changelog: [v0.0.1-alpha.1...v0.0.1-alpha.2](https://github.com/MpesaFlow/mpesaflow-python/compare/v0.0.1-alpha.1...v0.0.1-alpha.2)
