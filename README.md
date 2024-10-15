@@ -27,11 +27,14 @@ pip install git+ssh://git@github.com/stainless-sdks/mpesaflow-python.git
 The full API of this library can be found in [api.md](api.md).
 
 ```python
+import os
 from mpesaflow import Mpesaflow
 
 client = Mpesaflow(
+    # This is the default and can be omitted
+    bearer_token=os.environ.get("BEARER_TOKEN"),
     # defaults to "production".
-    environment="environment_1",
+    environment="sandbox",
 )
 
 app = client.apps.create()
@@ -48,12 +51,15 @@ so that your Bearer Token is not stored in source control.
 Simply import `AsyncMpesaflow` instead of `Mpesaflow` and use `await` with each API call:
 
 ```python
+import os
 import asyncio
 from mpesaflow import AsyncMpesaflow
 
 client = AsyncMpesaflow(
+    # This is the default and can be omitted
+    bearer_token=os.environ.get("BEARER_TOKEN"),
     # defaults to "production".
-    environment="environment_1",
+    environment="sandbox",
 )
 
 

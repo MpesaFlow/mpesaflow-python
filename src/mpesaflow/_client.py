@@ -57,7 +57,7 @@ __all__ = [
 
 ENVIRONMENTS: Dict[str, str] = {
     "production": "https://api.mpesaflow.com",
-    "environment_1": "https://sandbox-api.mpesaflow.com",
+    "sandbox": "https://sandbox-api.mpesaflow.com",
 }
 
 
@@ -70,13 +70,13 @@ class Mpesaflow(SyncAPIClient):
     # client options
     bearer_token: str
 
-    _environment: Literal["production", "environment_1"] | NotGiven
+    _environment: Literal["production", "sandbox"] | NotGiven
 
     def __init__(
         self,
         *,
         bearer_token: str | None = None,
-        environment: Literal["production", "environment_1"] | NotGiven = NOT_GIVEN,
+        environment: Literal["production", "sandbox"] | NotGiven = NOT_GIVEN,
         base_url: str | httpx.URL | None | NotGiven = NOT_GIVEN,
         timeout: Union[float, Timeout, None, NotGiven] = NOT_GIVEN,
         max_retries: int = DEFAULT_MAX_RETRIES,
@@ -174,7 +174,7 @@ class Mpesaflow(SyncAPIClient):
         self,
         *,
         bearer_token: str | None = None,
-        environment: Literal["production", "environment_1"] | None = None,
+        environment: Literal["production", "sandbox"] | None = None,
         base_url: str | httpx.URL | None = None,
         timeout: float | Timeout | None | NotGiven = NOT_GIVEN,
         http_client: httpx.Client | None = None,
@@ -286,13 +286,13 @@ class AsyncMpesaflow(AsyncAPIClient):
     # client options
     bearer_token: str
 
-    _environment: Literal["production", "environment_1"] | NotGiven
+    _environment: Literal["production", "sandbox"] | NotGiven
 
     def __init__(
         self,
         *,
         bearer_token: str | None = None,
-        environment: Literal["production", "environment_1"] | NotGiven = NOT_GIVEN,
+        environment: Literal["production", "sandbox"] | NotGiven = NOT_GIVEN,
         base_url: str | httpx.URL | None | NotGiven = NOT_GIVEN,
         timeout: Union[float, Timeout, None, NotGiven] = NOT_GIVEN,
         max_retries: int = DEFAULT_MAX_RETRIES,
@@ -390,7 +390,7 @@ class AsyncMpesaflow(AsyncAPIClient):
         self,
         *,
         bearer_token: str | None = None,
-        environment: Literal["production", "environment_1"] | None = None,
+        environment: Literal["production", "sandbox"] | None = None,
         base_url: str | httpx.URL | None = None,
         timeout: float | Timeout | None | NotGiven = NOT_GIVEN,
         http_client: httpx.AsyncClient | None = None,

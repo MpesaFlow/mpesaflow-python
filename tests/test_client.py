@@ -20,7 +20,7 @@ from mpesaflow import Mpesaflow, AsyncMpesaflow, APIResponseValidationError
 from mpesaflow._types import Omit
 from mpesaflow._models import BaseModel, FinalRequestOptions
 from mpesaflow._constants import RAW_RESPONSE_HEADER
-from mpesaflow._exceptions import APIStatusError, APITimeoutError, APIResponseValidationError
+from mpesaflow._exceptions import APIStatusError, MpesaflowError, APITimeoutError, APIResponseValidationError
 from mpesaflow._base_client import (
     DEFAULT_TIMEOUT,
     HTTPX_DEFAULT_TIMEOUT,
@@ -334,6 +334,16 @@ class TestMpesaflow:
         request = client2._build_request(FinalRequestOptions(method="get", url="/foo"))
         assert request.headers.get("x-foo") == "stainless"
         assert request.headers.get("x-stainless-lang") == "my-overriding-header"
+
+    def test_validate_headers(self) -> None:
+        client = Mpesaflow(base_url=base_url, bearer_token=bearer_token, _strict_response_validation=True)
+        request = client._build_request(FinalRequestOptions(method="get", url="/foo"))
+        assert request.headers.get("Authorization") == f"Bearer {bearer_token}"
+
+        with pytest.raises(MpesaflowError):
+            with update_env(**{"BEARER_TOKEN": Omit()}):
+                client2 = Mpesaflow(base_url=base_url, bearer_token=None, _strict_response_validation=True)
+            _ = client2
 
     def test_default_query_option(self) -> None:
         client = Mpesaflow(
@@ -1115,6 +1125,16 @@ class TestAsyncMpesaflow:
         request = client2._build_request(FinalRequestOptions(method="get", url="/foo"))
         assert request.headers.get("x-foo") == "stainless"
         assert request.headers.get("x-stainless-lang") == "my-overriding-header"
+
+    def test_validate_headers(self) -> None:
+        client = AsyncMpesaflow(base_url=base_url, bearer_token=bearer_token, _strict_response_validation=True)
+        request = client._build_request(FinalRequestOptions(method="get", url="/foo"))
+        assert request.headers.get("Authorization") == f"Bearer {bearer_token}"
+
+        with pytest.raises(MpesaflowError):
+            with update_env(**{"BEARER_TOKEN": Omit()}):
+                client2 = AsyncMpesaflow(base_url=base_url, bearer_token=None, _strict_response_validation=True)
+            _ = client2
 
     def test_default_query_option(self) -> None:
         client = AsyncMpesaflow(
