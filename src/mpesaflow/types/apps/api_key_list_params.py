@@ -9,7 +9,10 @@ __all__ = ["APIKeyListParams"]
 
 class APIKeyListParams(TypedDict, total=False):
     ending_before: str
+    """Cursor for the previous page"""
 
     limit: int
+    """Number of items to return"""
 
     starting_after: str
+    """Cursor for the next page"""

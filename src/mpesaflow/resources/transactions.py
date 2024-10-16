@@ -18,11 +18,10 @@ from .._response import (
     async_to_raw_response_wrapper,
     async_to_streamed_response_wrapper,
 )
-from ..pagination import SyncMyCursorIDPage, AsyncMyCursorIDPage
+from ..pagination import SyncCursorIDPagination, AsyncCursorIDPagination
 from .._base_client import AsyncPaginator, make_request_options
 from ..types.transaction import Transaction
 from ..types.transaction_create_response import TransactionCreateResponse
-from ..types.transaction_retrieve_response import TransactionRetrieveResponse
 
 __all__ = ["TransactionsResource", "AsyncTransactionsResource"]
 
@@ -34,7 +33,7 @@ class TransactionsResource(SyncAPIResource):
         This property can be used as a prefix for any HTTP method call to return the
         the raw response object instead of the parsed content.
 
-        For more information, see https://www.github.com/MpesaFlow/mpesaflow-python#accessing-raw-response-data-eg-headers
+        For more information, see https://www.github.com/Mpesaflow/mpesaflow-python#accessing-raw-response-data-eg-headers
         """
         return TransactionsResourceWithRawResponse(self)
 
@@ -43,7 +42,7 @@ class TransactionsResource(SyncAPIResource):
         """
         An alternative to `.with_raw_response` that doesn't eagerly read the response body.
 
-        For more information, see https://www.github.com/MpesaFlow/mpesaflow-python#with_streaming_response
+        For more information, see https://www.github.com/Mpesaflow/mpesaflow-python#with_streaming_response
         """
         return TransactionsResourceWithStreamingResponse(self)
 
@@ -102,7 +101,7 @@ class TransactionsResource(SyncAPIResource):
         extra_query: Query | None = None,
         extra_body: Body | None = None,
         timeout: float | httpx.Timeout | None | NotGiven = NOT_GIVEN,
-    ) -> TransactionRetrieveResponse:
+    ) -> Transaction:
         """
         Get transaction details
 
@@ -122,7 +121,7 @@ class TransactionsResource(SyncAPIResource):
             options=make_request_options(
                 extra_headers=extra_headers, extra_query=extra_query, extra_body=extra_body, timeout=timeout
             ),
-            cast_to=TransactionRetrieveResponse,
+            cast_to=Transaction,
         )
 
     def list(
@@ -138,11 +137,17 @@ class TransactionsResource(SyncAPIResource):
         extra_query: Query | None = None,
         extra_body: Body | None = None,
         timeout: float | httpx.Timeout | None | NotGiven = NOT_GIVEN,
-    ) -> SyncMyCursorIDPage[Transaction]:
+    ) -> SyncCursorIDPagination[Transaction]:
         """
         List all transactions
 
         Args:
+          ending_before: Cursor for the previous page
+
+          limit: Number of items to return
+
+          starting_after: Cursor for the next page
+
           extra_headers: Send extra headers
 
           extra_query: Add additional query parameters to the request
@@ -153,7 +158,7 @@ class TransactionsResource(SyncAPIResource):
         """
         return self._get_api_list(
             "/transactions/list",
-            page=SyncMyCursorIDPage[Transaction],
+            page=SyncCursorIDPagination[Transaction],
             options=make_request_options(
                 extra_headers=extra_headers,
                 extra_query=extra_query,
@@ -180,7 +185,7 @@ class AsyncTransactionsResource(AsyncAPIResource):
         This property can be used as a prefix for any HTTP method call to return the
         the raw response object instead of the parsed content.
 
-        For more information, see https://www.github.com/MpesaFlow/mpesaflow-python#accessing-raw-response-data-eg-headers
+        For more information, see https://www.github.com/Mpesaflow/mpesaflow-python#accessing-raw-response-data-eg-headers
         """
         return AsyncTransactionsResourceWithRawResponse(self)
 
@@ -189,7 +194,7 @@ class AsyncTransactionsResource(AsyncAPIResource):
         """
         An alternative to `.with_raw_response` that doesn't eagerly read the response body.
 
-        For more information, see https://www.github.com/MpesaFlow/mpesaflow-python#with_streaming_response
+        For more information, see https://www.github.com/Mpesaflow/mpesaflow-python#with_streaming_response
         """
         return AsyncTransactionsResourceWithStreamingResponse(self)
 
@@ -248,7 +253,7 @@ class AsyncTransactionsResource(AsyncAPIResource):
         extra_query: Query | None = None,
         extra_body: Body | None = None,
         timeout: float | httpx.Timeout | None | NotGiven = NOT_GIVEN,
-    ) -> TransactionRetrieveResponse:
+    ) -> Transaction:
         """
         Get transaction details
 
@@ -268,7 +273,7 @@ class AsyncTransactionsResource(AsyncAPIResource):
             options=make_request_options(
                 extra_headers=extra_headers, extra_query=extra_query, extra_body=extra_body, timeout=timeout
             ),
-            cast_to=TransactionRetrieveResponse,
+            cast_to=Transaction,
         )
 
     def list(
@@ -284,11 +289,17 @@ class AsyncTransactionsResource(AsyncAPIResource):
         extra_query: Query | None = None,
         extra_body: Body | None = None,
         timeout: float | httpx.Timeout | None | NotGiven = NOT_GIVEN,
-    ) -> AsyncPaginator[Transaction, AsyncMyCursorIDPage[Transaction]]:
+    ) -> AsyncPaginator[Transaction, AsyncCursorIDPagination[Transaction]]:
         """
         List all transactions
 
         Args:
+          ending_before: Cursor for the previous page
+
+          limit: Number of items to return
+
+          starting_after: Cursor for the next page
+
           extra_headers: Send extra headers
 
           extra_query: Add additional query parameters to the request
@@ -299,7 +310,7 @@ class AsyncTransactionsResource(AsyncAPIResource):
         """
         return self._get_api_list(
             "/transactions/list",
-            page=AsyncMyCursorIDPage[Transaction],
+            page=AsyncCursorIDPagination[Transaction],
             options=make_request_options(
                 extra_headers=extra_headers,
                 extra_query=extra_query,

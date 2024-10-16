@@ -12,6 +12,8 @@ __all__ = ["Transaction"]
 
 
 class Transaction(BaseModel):
+    id: Optional[str] = None
+
     account_reference: Optional[str] = FieldInfo(alias="accountReference", default=None)
 
     amount: Optional[float] = None
