@@ -17,9 +17,8 @@ from ..._response import (
     async_to_raw_response_wrapper,
     async_to_streamed_response_wrapper,
 )
-from ...pagination import SyncCursorIDPagination, AsyncCursorIDPagination
 from ...types.apps import api_key_list_params, api_key_create_params
-from ..._base_client import AsyncPaginator, make_request_options
+from ..._base_client import make_request_options
 from ...types.apps.api_key_list_response import APIKeyListResponse
 from ...types.apps.api_key_create_response import APIKeyCreateResponse
 from ...types.apps.api_key_delete_response import APIKeyDeleteResponse
@@ -34,7 +33,7 @@ class APIKeysResource(SyncAPIResource):
         This property can be used as a prefix for any HTTP method call to return the
         the raw response object instead of the parsed content.
 
-        For more information, see https://www.github.com/Mpesaflow/mpesaflow-python#accessing-raw-response-data-eg-headers
+        For more information, see https://www.github.com/MpesaFlow/mpesaflow-python#accessing-raw-response-data-eg-headers
         """
         return APIKeysResourceWithRawResponse(self)
 
@@ -43,7 +42,7 @@ class APIKeysResource(SyncAPIResource):
         """
         An alternative to `.with_raw_response` that doesn't eagerly read the response body.
 
-        For more information, see https://www.github.com/Mpesaflow/mpesaflow-python#with_streaming_response
+        For more information, see https://www.github.com/MpesaFlow/mpesaflow-python#with_streaming_response
         """
         return APIKeysResourceWithStreamingResponse(self)
 
@@ -95,7 +94,7 @@ class APIKeysResource(SyncAPIResource):
         extra_query: Query | None = None,
         extra_body: Body | None = None,
         timeout: float | httpx.Timeout | None | NotGiven = NOT_GIVEN,
-    ) -> SyncCursorIDPagination[APIKeyListResponse]:
+    ) -> APIKeyListResponse:
         """
         List all API keys for an application
 
@@ -116,9 +115,8 @@ class APIKeysResource(SyncAPIResource):
         """
         if not app_id:
             raise ValueError(f"Expected a non-empty value for `app_id` but received {app_id!r}")
-        return self._get_api_list(
+        return self._get(
             f"/apps/{app_id}/api-keys/list",
-            page=SyncCursorIDPagination[APIKeyListResponse],
             options=make_request_options(
                 extra_headers=extra_headers,
                 extra_query=extra_query,
@@ -133,7 +131,7 @@ class APIKeysResource(SyncAPIResource):
                     api_key_list_params.APIKeyListParams,
                 ),
             ),
-            model=APIKeyListResponse,
+            cast_to=APIKeyListResponse,
         )
 
     def delete(
@@ -180,7 +178,7 @@ class AsyncAPIKeysResource(AsyncAPIResource):
         This property can be used as a prefix for any HTTP method call to return the
         the raw response object instead of the parsed content.
 
-        For more information, see https://www.github.com/Mpesaflow/mpesaflow-python#accessing-raw-response-data-eg-headers
+        For more information, see https://www.github.com/MpesaFlow/mpesaflow-python#accessing-raw-response-data-eg-headers
         """
         return AsyncAPIKeysResourceWithRawResponse(self)
 
@@ -189,7 +187,7 @@ class AsyncAPIKeysResource(AsyncAPIResource):
         """
         An alternative to `.with_raw_response` that doesn't eagerly read the response body.
 
-        For more information, see https://www.github.com/Mpesaflow/mpesaflow-python#with_streaming_response
+        For more information, see https://www.github.com/MpesaFlow/mpesaflow-python#with_streaming_response
         """
         return AsyncAPIKeysResourceWithStreamingResponse(self)
 
@@ -228,7 +226,7 @@ class AsyncAPIKeysResource(AsyncAPIResource):
             cast_to=APIKeyCreateResponse,
         )
 
-    def list(
+    async def list(
         self,
         app_id: str,
         *,
@@ -241,7 +239,7 @@ class AsyncAPIKeysResource(AsyncAPIResource):
         extra_query: Query | None = None,
         extra_body: Body | None = None,
         timeout: float | httpx.Timeout | None | NotGiven = NOT_GIVEN,
-    ) -> AsyncPaginator[APIKeyListResponse, AsyncCursorIDPagination[APIKeyListResponse]]:
+    ) -> APIKeyListResponse:
         """
         List all API keys for an application
 
@@ -262,15 +260,14 @@ class AsyncAPIKeysResource(AsyncAPIResource):
         """
         if not app_id:
             raise ValueError(f"Expected a non-empty value for `app_id` but received {app_id!r}")
-        return self._get_api_list(
+        return await self._get(
             f"/apps/{app_id}/api-keys/list",
-            page=AsyncCursorIDPagination[APIKeyListResponse],
             options=make_request_options(
                 extra_headers=extra_headers,
                 extra_query=extra_query,
                 extra_body=extra_body,
                 timeout=timeout,
-                query=maybe_transform(
+                query=await async_maybe_transform(
                     {
                         "ending_before": ending_before,
                         "limit": limit,
@@ -279,7 +276,7 @@ class AsyncAPIKeysResource(AsyncAPIResource):
                     api_key_list_params.APIKeyListParams,
                 ),
             ),
-            model=APIKeyListResponse,
+            cast_to=APIKeyListResponse,
         )
 
     async def delete(
