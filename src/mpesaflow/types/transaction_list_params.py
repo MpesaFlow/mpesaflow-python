@@ -13,7 +13,10 @@ class TransactionListParams(TypedDict, total=False):
     app_id: Required[Annotated[str, PropertyInfo(alias="appId")]]
 
     ending_before: str
+    """Cursor for the previous page"""
 
     limit: int
+    """Number of items to return"""
 
     starting_after: str
+    """Cursor for the next page"""

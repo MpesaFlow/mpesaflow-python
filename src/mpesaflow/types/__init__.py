@@ -12,4 +12,3 @@ from .app_delete_response import AppDeleteResponse as AppDeleteResponse
 from .transaction_list_params import TransactionListParams as TransactionListParams
 from .transaction_create_params import TransactionCreateParams as TransactionCreateParams
 from .transaction_create_response import TransactionCreateResponse as TransactionCreateResponse
-from .transaction_retrieve_response import TransactionRetrieveResponse as TransactionRetrieveResponse
