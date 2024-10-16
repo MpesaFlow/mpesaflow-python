@@ -17,8 +17,10 @@ from ..._response import (
     async_to_raw_response_wrapper,
     async_to_streamed_response_wrapper,
 )
-from ...types.apps import api_key_create_params
-from ..._base_client import make_request_options
+from ...pagination import SyncMyCursorIDPage, AsyncMyCursorIDPage
+from ...types.apps import api_key_list_params, api_key_create_params
+from ..._base_client import AsyncPaginator, make_request_options
+from ...types.apps.api_key_list_response import APIKeyListResponse
 from ...types.apps.api_key_create_response import APIKeyCreateResponse
 from ...types.apps.api_key_delete_response import APIKeyDeleteResponse
 
@@ -78,6 +80,54 @@ class APIKeysResource(SyncAPIResource):
                 extra_headers=extra_headers, extra_query=extra_query, extra_body=extra_body, timeout=timeout
             ),
             cast_to=APIKeyCreateResponse,
+        )
+
+    def list(
+        self,
+        app_id: str,
+        *,
+        ending_before: str | NotGiven = NOT_GIVEN,
+        limit: int | NotGiven = NOT_GIVEN,
+        starting_after: str | NotGiven = NOT_GIVEN,
+        # Use the following arguments if you need to pass additional parameters to the API that aren't available via kwargs.
+        # The extra values given here take precedence over values defined on the client or passed to this method.
+        extra_headers: Headers | None = None,
+        extra_query: Query | None = None,
+        extra_body: Body | None = None,
+        timeout: float | httpx.Timeout | None | NotGiven = NOT_GIVEN,
+    ) -> SyncMyCursorIDPage[APIKeyListResponse]:
+        """
+        List all API keys for an application
+
+        Args:
+          extra_headers: Send extra headers
+
+          extra_query: Add additional query parameters to the request
+
+          extra_body: Add additional JSON properties to the request
+
+          timeout: Override the client-level default timeout for this request, in seconds
+        """
+        if not app_id:
+            raise ValueError(f"Expected a non-empty value for `app_id` but received {app_id!r}")
+        return self._get_api_list(
+            f"/apps/{app_id}/api-keys/list",
+            page=SyncMyCursorIDPage[APIKeyListResponse],
+            options=make_request_options(
+                extra_headers=extra_headers,
+                extra_query=extra_query,
+                extra_body=extra_body,
+                timeout=timeout,
+                query=maybe_transform(
+                    {
+                        "ending_before": ending_before,
+                        "limit": limit,
+                        "starting_after": starting_after,
+                    },
+                    api_key_list_params.APIKeyListParams,
+                ),
+            ),
+            model=APIKeyListResponse,
         )
 
     def delete(
@@ -172,6 +222,54 @@ class AsyncAPIKeysResource(AsyncAPIResource):
             cast_to=APIKeyCreateResponse,
         )
 
+    def list(
+        self,
+        app_id: str,
+        *,
+        ending_before: str | NotGiven = NOT_GIVEN,
+        limit: int | NotGiven = NOT_GIVEN,
+        starting_after: str | NotGiven = NOT_GIVEN,
+        # Use the following arguments if you need to pass additional parameters to the API that aren't available via kwargs.
+        # The extra values given here take precedence over values defined on the client or passed to this method.
+        extra_headers: Headers | None = None,
+        extra_query: Query | None = None,
+        extra_body: Body | None = None,
+        timeout: float | httpx.Timeout | None | NotGiven = NOT_GIVEN,
+    ) -> AsyncPaginator[APIKeyListResponse, AsyncMyCursorIDPage[APIKeyListResponse]]:
+        """
+        List all API keys for an application
+
+        Args:
+          extra_headers: Send extra headers
+
+          extra_query: Add additional query parameters to the request
+
+          extra_body: Add additional JSON properties to the request
+
+          timeout: Override the client-level default timeout for this request, in seconds
+        """
+        if not app_id:
+            raise ValueError(f"Expected a non-empty value for `app_id` but received {app_id!r}")
+        return self._get_api_list(
+            f"/apps/{app_id}/api-keys/list",
+            page=AsyncMyCursorIDPage[APIKeyListResponse],
+            options=make_request_options(
+                extra_headers=extra_headers,
+                extra_query=extra_query,
+                extra_body=extra_body,
+                timeout=timeout,
+                query=maybe_transform(
+                    {
+                        "ending_before": ending_before,
+                        "limit": limit,
+                        "starting_after": starting_after,
+                    },
+                    api_key_list_params.APIKeyListParams,
+                ),
+            ),
+            model=APIKeyListResponse,
+        )
+
     async def delete(
         self,
         api_key_id: str,
@@ -216,6 +314,9 @@ class APIKeysResourceWithRawResponse:
         self.create = to_raw_response_wrapper(
             api_keys.create,
         )
+        self.list = to_raw_response_wrapper(
+            api_keys.list,
+        )
         self.delete = to_raw_response_wrapper(
             api_keys.delete,
         )
@@ -227,6 +328,9 @@ class AsyncAPIKeysResourceWithRawResponse:
 
         self.create = async_to_raw_response_wrapper(
             api_keys.create,
+        )
+        self.list = async_to_raw_response_wrapper(
+            api_keys.list,
         )
         self.delete = async_to_raw_response_wrapper(
             api_keys.delete,
@@ -240,6 +344,9 @@ class APIKeysResourceWithStreamingResponse:
         self.create = to_streamed_response_wrapper(
             api_keys.create,
         )
+        self.list = to_streamed_response_wrapper(
+            api_keys.list,
+        )
         self.delete = to_streamed_response_wrapper(
             api_keys.delete,
         )
@@ -251,6 +358,9 @@ class AsyncAPIKeysResourceWithStreamingResponse:
 
         self.create = async_to_streamed_response_wrapper(
             api_keys.create,
+        )
+        self.list = async_to_streamed_response_wrapper(
+            api_keys.list,
         )
         self.delete = async_to_streamed_response_wrapper(
             api_keys.delete,
