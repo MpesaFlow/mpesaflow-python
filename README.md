@@ -15,12 +15,9 @@ The REST API documentation can be found on [docs.mpesaflow.com](https://docs.mpe
 ## Installation
 
 ```sh
-# install from the production repo
-pip install git+ssh://git@github.com/MpesaFlow/mpesaflow-python.git
+# install from PyPI
+pip install --pre mpesaflow
 ```
-
-> [!NOTE]
-> Once this package is [published to PyPI](https://app.stainlessapi.com/docs/guides/publish), this will become: `pip install --pre mpesaflow`
 
 ## Usage
 
@@ -32,9 +29,9 @@ from mpesaflow import Mpesaflow
 
 client = Mpesaflow(
     # This is the default and can be omitted
-    bearer_token=os.environ.get("MPESAFLOW_BEARER_TOKEN"),
+    bearer_token=os.environ.get("BEARER_TOKEN"),
     # defaults to "production".
-    environment="environment_1",
+    environment="sandbox",
 )
 
 app = client.apps.create()
@@ -43,7 +40,7 @@ print(app.application_id)
 
 While you can provide a `bearer_token` keyword argument,
 we recommend using [python-dotenv](https://pypi.org/project/python-dotenv/)
-to add `MPESAFLOW_BEARER_TOKEN="My Bearer Token"` to your `.env` file
+to add `BEARER_TOKEN="My Bearer Token"` to your `.env` file
 so that your Bearer Token is not stored in source control.
 
 ## Async usage
@@ -57,9 +54,9 @@ from mpesaflow import AsyncMpesaflow
 
 client = AsyncMpesaflow(
     # This is the default and can be omitted
-    bearer_token=os.environ.get("MPESAFLOW_BEARER_TOKEN"),
+    bearer_token=os.environ.get("BEARER_TOKEN"),
     # defaults to "production".
-    environment="environment_1",
+    environment="sandbox",
 )
 
 
