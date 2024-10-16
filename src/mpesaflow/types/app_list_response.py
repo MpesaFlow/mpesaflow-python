@@ -1,10 +1,12 @@
 # File generated from our OpenAPI spec by Stainless. See CONTRIBUTING.md for details.
 
-from typing import List
-from typing_extensions import TypeAlias
+from typing import List, Optional
 
+from .._models import BaseModel
 from .application import Application
 
 __all__ = ["AppListResponse"]
 
-AppListResponse: TypeAlias = List[Application]
+
+class AppListResponse(BaseModel):
+    data: Optional[List[Application]] = None

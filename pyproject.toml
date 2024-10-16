@@ -36,8 +36,8 @@ classifiers = [
 ]
 
 [project.urls]
-Homepage = "https://github.com/Mpesaflow/mpesaflow-python"
-Repository = "https://github.com/Mpesaflow/mpesaflow-python"
+Homepage = "https://github.com/MpesaFlow/mpesaflow-python"
+Repository = "https://github.com/MpesaFlow/mpesaflow-python"
 
 
 
@@ -123,7 +123,7 @@ path = "README.md"
 [[tool.hatch.metadata.hooks.fancy-pypi-readme.substitutions]]
 # replace relative links with absolute links
 pattern = '\[(.+?)\]\(((?!https?://)\S+?)\)'
-replacement = '[\1](https://github.com/Mpesaflow/mpesaflow-python/tree/main/\g<2>)'
+replacement = '[\1](https://github.com/MpesaFlow/mpesaflow-python/tree/main/\g<2>)'
 
 [tool.black]
 line-length = 120
