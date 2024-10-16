@@ -11,3 +11,9 @@ __all__ = ["TransactionListParams"]
 
 class TransactionListParams(TypedDict, total=False):
     app_id: Required[Annotated[str, PropertyInfo(alias="appId")]]
+
+    ending_before: str
+
+    limit: int
+
+    starting_after: str
