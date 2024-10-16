@@ -125,7 +125,7 @@ first_page = await client.apps.list()
 if first_page.has_next_page():
     print(f"will fetch next page using these details: {first_page.next_page_info()}")
     next_page = await first_page.get_next_page()
-    print(f"number of items we just fetched: {len(next_page.my_data)}")
+    print(f"number of items we just fetched: {len(next_page.data)}")
 
 # Remove `await` for non-async usage.
 ```
@@ -136,7 +136,7 @@ Or just work directly with the returned data:
 first_page = await client.apps.list()
 
 print(f"next page cursor: {first_page.starting_after}")  # => "next page cursor: ..."
-for app in first_page.my_data:
+for app in first_page.data:
     print(app.id)
 
 # Remove `await` for non-async usage.
@@ -270,9 +270,9 @@ app = response.parse()  # get the object that `apps.create()` would have returne
 print(app.application_id)
 ```
 
-These methods return an [`APIResponse`](https://github.com/MpesaFlow/mpesaflow-python/tree/main/src/mpesaflow/_response.py) object.
+These methods return an [`APIResponse`](https://github.com/Mpesaflow/mpesaflow-python/tree/main/src/mpesaflow/_response.py) object.
 
-The async client returns an [`AsyncAPIResponse`](https://github.com/MpesaFlow/mpesaflow-python/tree/main/src/mpesaflow/_response.py) with the same structure, the only difference being `await`able methods for reading the response content.
+The async client returns an [`AsyncAPIResponse`](https://github.com/Mpesaflow/mpesaflow-python/tree/main/src/mpesaflow/_response.py) with the same structure, the only difference being `await`able methods for reading the response content.
 
 #### `.with_streaming_response`
 
@@ -366,7 +366,7 @@ This package generally follows [SemVer](https://semver.org/spec/v2.0.0.html) con
 
 We take backwards-compatibility seriously and work hard to ensure you can rely on a smooth upgrade experience.
 
-We are keen for your feedback; please open an [issue](https://www.github.com/MpesaFlow/mpesaflow-python/issues) with questions, bugs, or suggestions.
+We are keen for your feedback; please open an [issue](https://www.github.com/Mpesaflow/mpesaflow-python/issues) with questions, bugs, or suggestions.
 
 ### Determining the installed version
 

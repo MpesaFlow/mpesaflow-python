@@ -26,7 +26,7 @@ from ..._response import (
     async_to_raw_response_wrapper,
     async_to_streamed_response_wrapper,
 )
-from ...pagination import SyncMyCursorIDPage, AsyncMyCursorIDPage
+from ...pagination import SyncCursorIDPagination, AsyncCursorIDPagination
 from ..._base_client import AsyncPaginator, make_request_options
 from ...types.application import Application
 from ...types.app_create_response import AppCreateResponse
@@ -46,7 +46,7 @@ class AppsResource(SyncAPIResource):
         This property can be used as a prefix for any HTTP method call to return the
         the raw response object instead of the parsed content.
 
-        For more information, see https://www.github.com/MpesaFlow/mpesaflow-python#accessing-raw-response-data-eg-headers
+        For more information, see https://www.github.com/Mpesaflow/mpesaflow-python#accessing-raw-response-data-eg-headers
         """
         return AppsResourceWithRawResponse(self)
 
@@ -55,7 +55,7 @@ class AppsResource(SyncAPIResource):
         """
         An alternative to `.with_raw_response` that doesn't eagerly read the response body.
 
-        For more information, see https://www.github.com/MpesaFlow/mpesaflow-python#with_streaming_response
+        For more information, see https://www.github.com/Mpesaflow/mpesaflow-python#with_streaming_response
         """
         return AppsResourceWithStreamingResponse(self)
 
@@ -110,11 +110,17 @@ class AppsResource(SyncAPIResource):
         extra_query: Query | None = None,
         extra_body: Body | None = None,
         timeout: float | httpx.Timeout | None | NotGiven = NOT_GIVEN,
-    ) -> SyncMyCursorIDPage[Application]:
+    ) -> SyncCursorIDPagination[Application]:
         """
         List all applications
 
         Args:
+          ending_before: Cursor for the previous page
+
+          limit: Number of items to return
+
+          starting_after: Cursor for the next page
+
           extra_headers: Send extra headers
 
           extra_query: Add additional query parameters to the request
@@ -125,7 +131,7 @@ class AppsResource(SyncAPIResource):
         """
         return self._get_api_list(
             "/apps/list",
-            page=SyncMyCursorIDPage[Application],
+            page=SyncCursorIDPagination[Application],
             options=make_request_options(
                 extra_headers=extra_headers,
                 extra_query=extra_query,
@@ -188,7 +194,7 @@ class AsyncAppsResource(AsyncAPIResource):
         This property can be used as a prefix for any HTTP method call to return the
         the raw response object instead of the parsed content.
 
-        For more information, see https://www.github.com/MpesaFlow/mpesaflow-python#accessing-raw-response-data-eg-headers
+        For more information, see https://www.github.com/Mpesaflow/mpesaflow-python#accessing-raw-response-data-eg-headers
         """
         return AsyncAppsResourceWithRawResponse(self)
 
@@ -197,7 +203,7 @@ class AsyncAppsResource(AsyncAPIResource):
         """
         An alternative to `.with_raw_response` that doesn't eagerly read the response body.
 
-        For more information, see https://www.github.com/MpesaFlow/mpesaflow-python#with_streaming_response
+        For more information, see https://www.github.com/Mpesaflow/mpesaflow-python#with_streaming_response
         """
         return AsyncAppsResourceWithStreamingResponse(self)
 
@@ -252,11 +258,17 @@ class AsyncAppsResource(AsyncAPIResource):
         extra_query: Query | None = None,
         extra_body: Body | None = None,
         timeout: float | httpx.Timeout | None | NotGiven = NOT_GIVEN,
-    ) -> AsyncPaginator[Application, AsyncMyCursorIDPage[Application]]:
+    ) -> AsyncPaginator[Application, AsyncCursorIDPagination[Application]]:
         """
         List all applications
 
         Args:
+          ending_before: Cursor for the previous page
+
+          limit: Number of items to return
+
+          starting_after: Cursor for the next page
+
           extra_headers: Send extra headers
 
           extra_query: Add additional query parameters to the request
@@ -267,7 +279,7 @@ class AsyncAppsResource(AsyncAPIResource):
         """
         return self._get_api_list(
             "/apps/list",
-            page=AsyncMyCursorIDPage[Application],
+            page=AsyncCursorIDPagination[Application],
             options=make_request_options(
                 extra_headers=extra_headers,
                 extra_query=extra_query,
