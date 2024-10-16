@@ -79,69 +79,6 @@ Nested request parameters are [TypedDicts](https://docs.python.org/3/library/typ
 
 Typed requests and responses provide autocomplete and documentation within your editor. If you would like to see type errors in VS Code to help catch bugs earlier, set `python.analysis.typeCheckingMode` to `basic`.
 
-## Pagination
-
-List methods in the Mpesaflow API are paginated.
-
-This library provides auto-paginating iterators with each list response, so you do not have to request successive pages manually:
-
-```python
-from mpesaflow import Mpesaflow
-
-client = Mpesaflow()
-
-all_apps = []
-# Automatically fetches more pages as needed.
-for app in client.apps.list():
-    # Do something with app here
-    all_apps.append(app)
-print(all_apps)
-```
-
-Or, asynchronously:
-
-```python
-import asyncio
-from mpesaflow import AsyncMpesaflow
-
-client = AsyncMpesaflow()
-
-
-async def main() -> None:
-    all_apps = []
-    # Iterate through items across all pages, issuing requests as needed.
-    async for app in client.apps.list():
-        all_apps.append(app)
-    print(all_apps)
-
-
-asyncio.run(main())
-```
-
-Alternatively, you can use the `.has_next_page()`, `.next_page_info()`, or `.get_next_page()` methods for more granular control working with pages:
-
-```python
-first_page = await client.apps.list()
-if first_page.has_next_page():
-    print(f"will fetch next page using these details: {first_page.next_page_info()}")
-    next_page = await first_page.get_next_page()
-    print(f"number of items we just fetched: {len(next_page.data)}")
-
-# Remove `await` for non-async usage.
-```
-
-Or just work directly with the returned data:
-
-```python
-first_page = await client.apps.list()
-
-print(f"next page cursor: {first_page.starting_after}")  # => "next page cursor: ..."
-for app in first_page.data:
-    print(app.id)
-
-# Remove `await` for non-async usage.
-```
-
 ## Handling errors
 
 When the library is unable to connect to the API (for example, due to network connection problems or a timeout), a subclass of `mpesaflow.APIConnectionError` is raised.
@@ -270,9 +207,9 @@ app = response.parse()  # get the object that `apps.create()` would have returne
 print(app.application_id)
 ```
 
-These methods return an [`APIResponse`](https://github.com/Mpesaflow/mpesaflow-python/tree/main/src/mpesaflow/_response.py) object.
+These methods return an [`APIResponse`](https://github.com/MpesaFlow/mpesaflow-python/tree/main/src/mpesaflow/_response.py) object.
 
-The async client returns an [`AsyncAPIResponse`](https://github.com/Mpesaflow/mpesaflow-python/tree/main/src/mpesaflow/_response.py) with the same structure, the only difference being `await`able methods for reading the response content.
+The async client returns an [`AsyncAPIResponse`](https://github.com/MpesaFlow/mpesaflow-python/tree/main/src/mpesaflow/_response.py) with the same structure, the only difference being `await`able methods for reading the response content.
 
 #### `.with_streaming_response`
 
@@ -366,7 +303,7 @@ This package generally follows [SemVer](https://semver.org/spec/v2.0.0.html) con
 
 We take backwards-compatibility seriously and work hard to ensure you can rely on a smooth upgrade experience.
 
-We are keen for your feedback; please open an [issue](https://www.github.com/Mpesaflow/mpesaflow-python/issues) with questions, bugs, or suggestions.
+We are keen for your feedback; please open an [issue](https://www.github.com/MpesaFlow/mpesaflow-python/issues) with questions, bugs, or suggestions.
 
 ### Determining the installed version
 

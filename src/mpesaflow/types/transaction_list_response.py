@@ -1,10 +1,12 @@
 # File generated from our OpenAPI spec by Stainless. See CONTRIBUTING.md for details.
 
-from typing import List
-from typing_extensions import TypeAlias
+from typing import List, Optional
 
+from .._models import BaseModel
 from .transaction import Transaction
 
 __all__ = ["TransactionListResponse"]
 
-TransactionListResponse: TypeAlias = List[Transaction]
+
+class TransactionListResponse(BaseModel):
+    data: Optional[List[Transaction]] = None
