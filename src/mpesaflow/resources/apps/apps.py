@@ -26,9 +26,8 @@ from ..._response import (
     async_to_raw_response_wrapper,
     async_to_streamed_response_wrapper,
 )
-from ...pagination import SyncCursorIDPagination, AsyncCursorIDPagination
-from ..._base_client import AsyncPaginator, make_request_options
-from ...types.application import Application
+from ..._base_client import make_request_options
+from ...types.app_list_response import AppListResponse
 from ...types.app_create_response import AppCreateResponse
 from ...types.app_delete_response import AppDeleteResponse
 
@@ -46,7 +45,7 @@ class AppsResource(SyncAPIResource):
         This property can be used as a prefix for any HTTP method call to return the
         the raw response object instead of the parsed content.
 
-        For more information, see https://www.github.com/Mpesaflow/mpesaflow-python#accessing-raw-response-data-eg-headers
+        For more information, see https://www.github.com/MpesaFlow/mpesaflow-python#accessing-raw-response-data-eg-headers
         """
         return AppsResourceWithRawResponse(self)
 
@@ -55,7 +54,7 @@ class AppsResource(SyncAPIResource):
         """
         An alternative to `.with_raw_response` that doesn't eagerly read the response body.
 
-        For more information, see https://www.github.com/Mpesaflow/mpesaflow-python#with_streaming_response
+        For more information, see https://www.github.com/MpesaFlow/mpesaflow-python#with_streaming_response
         """
         return AppsResourceWithStreamingResponse(self)
 
@@ -110,7 +109,7 @@ class AppsResource(SyncAPIResource):
         extra_query: Query | None = None,
         extra_body: Body | None = None,
         timeout: float | httpx.Timeout | None | NotGiven = NOT_GIVEN,
-    ) -> SyncCursorIDPagination[Application]:
+    ) -> AppListResponse:
         """
         List all applications
 
@@ -129,9 +128,8 @@ class AppsResource(SyncAPIResource):
 
           timeout: Override the client-level default timeout for this request, in seconds
         """
-        return self._get_api_list(
+        return self._get(
             "/apps/list",
-            page=SyncCursorIDPagination[Application],
             options=make_request_options(
                 extra_headers=extra_headers,
                 extra_query=extra_query,
@@ -146,7 +144,7 @@ class AppsResource(SyncAPIResource):
                     app_list_params.AppListParams,
                 ),
             ),
-            model=Application,
+            cast_to=AppListResponse,
         )
 
     def delete(
@@ -194,7 +192,7 @@ class AsyncAppsResource(AsyncAPIResource):
         This property can be used as a prefix for any HTTP method call to return the
         the raw response object instead of the parsed content.
 
-        For more information, see https://www.github.com/Mpesaflow/mpesaflow-python#accessing-raw-response-data-eg-headers
+        For more information, see https://www.github.com/MpesaFlow/mpesaflow-python#accessing-raw-response-data-eg-headers
         """
         return AsyncAppsResourceWithRawResponse(self)
 
@@ -203,7 +201,7 @@ class AsyncAppsResource(AsyncAPIResource):
         """
         An alternative to `.with_raw_response` that doesn't eagerly read the response body.
 
-        For more information, see https://www.github.com/Mpesaflow/mpesaflow-python#with_streaming_response
+        For more information, see https://www.github.com/MpesaFlow/mpesaflow-python#with_streaming_response
         """
         return AsyncAppsResourceWithStreamingResponse(self)
 
@@ -246,7 +244,7 @@ class AsyncAppsResource(AsyncAPIResource):
             cast_to=AppCreateResponse,
         )
 
-    def list(
+    async def list(
         self,
         *,
         ending_before: str | NotGiven = NOT_GIVEN,
@@ -258,7 +256,7 @@ class AsyncAppsResource(AsyncAPIResource):
         extra_query: Query | None = None,
         extra_body: Body | None = None,
         timeout: float | httpx.Timeout | None | NotGiven = NOT_GIVEN,
-    ) -> AsyncPaginator[Application, AsyncCursorIDPagination[Application]]:
+    ) -> AppListResponse:
         """
         List all applications
 
@@ -277,15 +275,14 @@ class AsyncAppsResource(AsyncAPIResource):
 
           timeout: Override the client-level default timeout for this request, in seconds
         """
-        return self._get_api_list(
+        return await self._get(
             "/apps/list",
-            page=AsyncCursorIDPagination[Application],
             options=make_request_options(
                 extra_headers=extra_headers,
                 extra_query=extra_query,
                 extra_body=extra_body,
                 timeout=timeout,
-                query=maybe_transform(
+                query=await async_maybe_transform(
                     {
                         "ending_before": ending_before,
                         "limit": limit,
@@ -294,7 +291,7 @@ class AsyncAppsResource(AsyncAPIResource):
                     app_list_params.AppListParams,
                 ),
             ),
-            model=Application,
+            cast_to=AppListResponse,
         )
 
     async def delete(
