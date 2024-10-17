@@ -10,7 +10,7 @@ It is generated with [Stainless](https://www.stainlessapi.com/).
 
 ## Documentation
 
-The REST API documentation can be found on [docs.mpesaflow.com](https://docs.mpesaflow.com). The full API of this library can be found in [api.md](api.md).
+The REST API documentation can be found on [docs.mpesaflow.com](https://docs.mpesaflow.com/). The full API of this library can be found in [api.md](api.md).
 
 ## Installation
 
@@ -29,7 +29,7 @@ from mpesaflow import Mpesaflow
 
 client = Mpesaflow(
     # This is the default and can be omitted
-    bearer_token=os.environ.get("BEARER_TOKEN"),
+    bearer_token=os.environ.get("MPESAFLOW_API_TOKEN"),
     # defaults to "production".
     environment="sandbox",
 )
@@ -40,7 +40,7 @@ print(app.application_id)
 
 While you can provide a `bearer_token` keyword argument,
 we recommend using [python-dotenv](https://pypi.org/project/python-dotenv/)
-to add `BEARER_TOKEN="My Bearer Token"` to your `.env` file
+to add `MPESAFLOW_API_TOKEN="My Bearer Token"` to your `.env` file
 so that your Bearer Token is not stored in source control.
 
 ## Async usage
@@ -54,7 +54,7 @@ from mpesaflow import AsyncMpesaflow
 
 client = AsyncMpesaflow(
     # This is the default and can be omitted
-    bearer_token=os.environ.get("BEARER_TOKEN"),
+    bearer_token=os.environ.get("MPESAFLOW_API_TOKEN"),
     # defaults to "production".
     environment="sandbox",
 )

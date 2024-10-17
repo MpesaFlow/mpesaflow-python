@@ -341,7 +341,7 @@ class TestMpesaflow:
         assert request.headers.get("Authorization") == f"Bearer {bearer_token}"
 
         with pytest.raises(MpesaflowError):
-            with update_env(**{"BEARER_TOKEN": Omit()}):
+            with update_env(**{"MPESAFLOW_API_TOKEN": Omit()}):
                 client2 = Mpesaflow(base_url=base_url, bearer_token=None, _strict_response_validation=True)
             _ = client2
 
@@ -1132,7 +1132,7 @@ class TestAsyncMpesaflow:
         assert request.headers.get("Authorization") == f"Bearer {bearer_token}"
 
         with pytest.raises(MpesaflowError):
-            with update_env(**{"BEARER_TOKEN": Omit()}):
+            with update_env(**{"MPESAFLOW_API_TOKEN": Omit()}):
                 client2 = AsyncMpesaflow(base_url=base_url, bearer_token=None, _strict_response_validation=True)
             _ = client2
 
