@@ -1,5 +1,13 @@
 # Changelog
 
+## 3.0.0 (2024-10-26)
+
+Full Changelog: [v0.1.0-alpha.2...v3.0.0](https://github.com/MpesaFlow/mpesaflow-python/compare/v0.1.0-alpha.2...v3.0.0)
+
+### Chores
+
+* update SDK settings ([#27](https://github.com/MpesaFlow/mpesaflow-python/issues/27)) ([5935f03](https://github.com/MpesaFlow/mpesaflow-python/commit/5935f036c09a7edddb40fc05e2205126b1ca919c))
+
 ## 0.1.0-alpha.2 (2024-10-17)
 
 Full Changelog: [v0.1.0-alpha.1...v0.1.0-alpha.2](https://github.com/MpesaFlow/mpesaflow-python/compare/v0.1.0-alpha.1...v0.1.0-alpha.2)
