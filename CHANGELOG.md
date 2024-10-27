@@ -1,5 +1,13 @@
 # Changelog
 
+## 3.2.0 (2024-10-27)
+
+Full Changelog: [v3.1.0...v3.2.0](https://github.com/MpesaFlow/mpesaflow-python/compare/v3.1.0...v3.2.0)
+
+### Features
+
+* **api:** api update ([#33](https://github.com/MpesaFlow/mpesaflow-python/issues/33)) ([2eb6f82](https://github.com/MpesaFlow/mpesaflow-python/commit/2eb6f82ae27c6df8ea9876764fecd611c73b3b75))
+
 ## 3.1.0 (2024-10-27)
 
 Full Changelog: [v3.0.0...v3.1.0](https://github.com/MpesaFlow/mpesaflow-python/compare/v3.0.0...v3.1.0)
