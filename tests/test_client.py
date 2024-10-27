@@ -21,7 +21,7 @@ from mpesaflow import Mpesaflow, AsyncMpesaflow, APIResponseValidationError
 from mpesaflow._types import Omit
 from mpesaflow._models import BaseModel, FinalRequestOptions
 from mpesaflow._constants import RAW_RESPONSE_HEADER
-from mpesaflow._exceptions import APIStatusError, MpesaflowError, APITimeoutError, APIResponseValidationError
+from mpesaflow._exceptions import APIStatusError, APITimeoutError, APIResponseValidationError
 from mpesaflow._base_client import (
     DEFAULT_TIMEOUT,
     HTTPX_DEFAULT_TIMEOUT,
@@ -32,7 +32,7 @@ from mpesaflow._base_client import (
 from .utils import update_env
 
 base_url = os.environ.get("TEST_API_BASE_URL", "http://127.0.0.1:4010")
-bearer_token = "My Bearer Token"
+app_api_key = "My App API Key"
 
 
 def _get_params(client: BaseClient[Any, Any]) -> dict[str, str]:
@@ -54,7 +54,7 @@ def _get_open_connections(client: Mpesaflow | AsyncMpesaflow) -> int:
 
 
 class TestMpesaflow:
-    client = Mpesaflow(base_url=base_url, bearer_token=bearer_token, _strict_response_validation=True)
+    client = Mpesaflow(base_url=base_url, app_api_key=app_api_key, _strict_response_validation=True)
 
     @pytest.mark.respx(base_url=base_url)
     def test_raw_response(self, respx_mock: MockRouter) -> None:
@@ -80,9 +80,9 @@ class TestMpesaflow:
         copied = self.client.copy()
         assert id(copied) != id(self.client)
 
-        copied = self.client.copy(bearer_token="another My Bearer Token")
-        assert copied.bearer_token == "another My Bearer Token"
-        assert self.client.bearer_token == "My Bearer Token"
+        copied = self.client.copy(app_api_key="another My App API Key")
+        assert copied.app_api_key == "another My App API Key"
+        assert self.client.app_api_key == "My App API Key"
 
     def test_copy_default_options(self) -> None:
         # options that have a default are overridden correctly
@@ -103,7 +103,7 @@ class TestMpesaflow:
     def test_copy_default_headers(self) -> None:
         client = Mpesaflow(
             base_url=base_url,
-            bearer_token=bearer_token,
+            app_api_key=app_api_key,
             _strict_response_validation=True,
             default_headers={"X-Foo": "bar"},
         )
@@ -139,7 +139,7 @@ class TestMpesaflow:
 
     def test_copy_default_query(self) -> None:
         client = Mpesaflow(
-            base_url=base_url, bearer_token=bearer_token, _strict_response_validation=True, default_query={"foo": "bar"}
+            base_url=base_url, app_api_key=app_api_key, _strict_response_validation=True, default_query={"foo": "bar"}
         )
         assert _get_params(client)["foo"] == "bar"
 
@@ -264,7 +264,7 @@ class TestMpesaflow:
 
     def test_client_timeout_option(self) -> None:
         client = Mpesaflow(
-            base_url=base_url, bearer_token=bearer_token, _strict_response_validation=True, timeout=httpx.Timeout(0)
+            base_url=base_url, app_api_key=app_api_key, _strict_response_validation=True, timeout=httpx.Timeout(0)
         )
 
         request = client._build_request(FinalRequestOptions(method="get", url="/foo"))
@@ -275,7 +275,7 @@ class TestMpesaflow:
         # custom timeout given to the httpx client should be used
         with httpx.Client(timeout=None) as http_client:
             client = Mpesaflow(
-                base_url=base_url, bearer_token=bearer_token, _strict_response_validation=True, http_client=http_client
+                base_url=base_url, app_api_key=app_api_key, _strict_response_validation=True, http_client=http_client
             )
 
             request = client._build_request(FinalRequestOptions(method="get", url="/foo"))
@@ -285,7 +285,7 @@ class TestMpesaflow:
         # no timeout given to the httpx client should not use the httpx default
         with httpx.Client() as http_client:
             client = Mpesaflow(
-                base_url=base_url, bearer_token=bearer_token, _strict_response_validation=True, http_client=http_client
+                base_url=base_url, app_api_key=app_api_key, _strict_response_validation=True, http_client=http_client
             )
 
             request = client._build_request(FinalRequestOptions(method="get", url="/foo"))
@@ -295,7 +295,7 @@ class TestMpesaflow:
         # explicitly passing the default timeout currently results in it being ignored
         with httpx.Client(timeout=HTTPX_DEFAULT_TIMEOUT) as http_client:
             client = Mpesaflow(
-                base_url=base_url, bearer_token=bearer_token, _strict_response_validation=True, http_client=http_client
+                base_url=base_url, app_api_key=app_api_key, _strict_response_validation=True, http_client=http_client
             )
 
             request = client._build_request(FinalRequestOptions(method="get", url="/foo"))
@@ -307,7 +307,7 @@ class TestMpesaflow:
             async with httpx.AsyncClient() as http_client:
                 Mpesaflow(
                     base_url=base_url,
-                    bearer_token=bearer_token,
+                    app_api_key=app_api_key,
                     _strict_response_validation=True,
                     http_client=cast(Any, http_client),
                 )
@@ -315,7 +315,7 @@ class TestMpesaflow:
     def test_default_headers_option(self) -> None:
         client = Mpesaflow(
             base_url=base_url,
-            bearer_token=bearer_token,
+            app_api_key=app_api_key,
             _strict_response_validation=True,
             default_headers={"X-Foo": "bar"},
         )
@@ -325,7 +325,7 @@ class TestMpesaflow:
 
         client2 = Mpesaflow(
             base_url=base_url,
-            bearer_token=bearer_token,
+            app_api_key=app_api_key,
             _strict_response_validation=True,
             default_headers={
                 "X-Foo": "stainless",
@@ -337,19 +337,28 @@ class TestMpesaflow:
         assert request.headers.get("x-stainless-lang") == "my-overriding-header"
 
     def test_validate_headers(self) -> None:
-        client = Mpesaflow(base_url=base_url, bearer_token=bearer_token, _strict_response_validation=True)
+        client = Mpesaflow(base_url=base_url, app_api_key=app_api_key, _strict_response_validation=True)
         request = client._build_request(FinalRequestOptions(method="get", url="/foo"))
-        assert request.headers.get("Authorization") == f"Bearer {bearer_token}"
+        assert request.headers.get("X-App-Api-Key") == app_api_key
 
-        with pytest.raises(MpesaflowError):
-            with update_env(**{"MPESAFLOW_API_TOKEN": Omit()}):
-                client2 = Mpesaflow(base_url=base_url, bearer_token=None, _strict_response_validation=True)
-            _ = client2
+        with update_env(**{"APP_API_KEY": Omit()}):
+            client2 = Mpesaflow(base_url=base_url, app_api_key=None, _strict_response_validation=True)
+
+        with pytest.raises(
+            TypeError,
+            match="Could not resolve authentication method. Expected either app_api_key or root_api_key to be set. Or for one of the `X-App-Api-Key` or `X-Root-Api-Key` headers to be explicitly omitted",
+        ):
+            client2._build_request(FinalRequestOptions(method="get", url="/foo"))
+
+        request2 = client2._build_request(
+            FinalRequestOptions(method="get", url="/foo", headers={"X-App-Api-Key": Omit()})
+        )
+        assert request2.headers.get("X-App-Api-Key") is None
 
     def test_default_query_option(self) -> None:
         client = Mpesaflow(
             base_url=base_url,
-            bearer_token=bearer_token,
+            app_api_key=app_api_key,
             _strict_response_validation=True,
             default_query={"query_param": "bar"},
         )
@@ -552,7 +561,7 @@ class TestMpesaflow:
 
     def test_base_url_setter(self) -> None:
         client = Mpesaflow(
-            base_url="https://example.com/from_init", bearer_token=bearer_token, _strict_response_validation=True
+            base_url="https://example.com/from_init", app_api_key=app_api_key, _strict_response_validation=True
         )
         assert client.base_url == "https://example.com/from_init/"
 
@@ -562,16 +571,16 @@ class TestMpesaflow:
 
     def test_base_url_env(self) -> None:
         with update_env(MPESAFLOW_BASE_URL="http://localhost:5000/from/env"):
-            client = Mpesaflow(bearer_token=bearer_token, _strict_response_validation=True)
+            client = Mpesaflow(app_api_key=app_api_key, _strict_response_validation=True)
             assert client.base_url == "http://localhost:5000/from/env/"
 
         # explicit environment arg requires explicitness
         with update_env(MPESAFLOW_BASE_URL="http://localhost:5000/from/env"):
             with pytest.raises(ValueError, match=r"you must pass base_url=None"):
-                Mpesaflow(bearer_token=bearer_token, _strict_response_validation=True, environment="production")
+                Mpesaflow(app_api_key=app_api_key, _strict_response_validation=True, environment="production")
 
             client = Mpesaflow(
-                base_url=None, bearer_token=bearer_token, _strict_response_validation=True, environment="production"
+                base_url=None, app_api_key=app_api_key, _strict_response_validation=True, environment="production"
             )
             assert str(client.base_url).startswith("https://api.mpesaflow.com")
 
@@ -579,13 +588,11 @@ class TestMpesaflow:
         "client",
         [
             Mpesaflow(
-                base_url="http://localhost:5000/custom/path/",
-                bearer_token=bearer_token,
-                _strict_response_validation=True,
+                base_url="http://localhost:5000/custom/path/", app_api_key=app_api_key, _strict_response_validation=True
             ),
             Mpesaflow(
                 base_url="http://localhost:5000/custom/path/",
-                bearer_token=bearer_token,
+                app_api_key=app_api_key,
                 _strict_response_validation=True,
                 http_client=httpx.Client(),
             ),
@@ -606,13 +613,11 @@ class TestMpesaflow:
         "client",
         [
             Mpesaflow(
-                base_url="http://localhost:5000/custom/path/",
-                bearer_token=bearer_token,
-                _strict_response_validation=True,
+                base_url="http://localhost:5000/custom/path/", app_api_key=app_api_key, _strict_response_validation=True
             ),
             Mpesaflow(
                 base_url="http://localhost:5000/custom/path/",
-                bearer_token=bearer_token,
+                app_api_key=app_api_key,
                 _strict_response_validation=True,
                 http_client=httpx.Client(),
             ),
@@ -633,13 +638,11 @@ class TestMpesaflow:
         "client",
         [
             Mpesaflow(
-                base_url="http://localhost:5000/custom/path/",
-                bearer_token=bearer_token,
-                _strict_response_validation=True,
+                base_url="http://localhost:5000/custom/path/", app_api_key=app_api_key, _strict_response_validation=True
             ),
             Mpesaflow(
                 base_url="http://localhost:5000/custom/path/",
-                bearer_token=bearer_token,
+                app_api_key=app_api_key,
                 _strict_response_validation=True,
                 http_client=httpx.Client(),
             ),
@@ -657,7 +660,7 @@ class TestMpesaflow:
         assert request.url == "https://myapi.com/foo"
 
     def test_copied_client_does_not_close_http(self) -> None:
-        client = Mpesaflow(base_url=base_url, bearer_token=bearer_token, _strict_response_validation=True)
+        client = Mpesaflow(base_url=base_url, app_api_key=app_api_key, _strict_response_validation=True)
         assert not client.is_closed()
 
         copied = client.copy()
@@ -668,7 +671,7 @@ class TestMpesaflow:
         assert not client.is_closed()
 
     def test_client_context_manager(self) -> None:
-        client = Mpesaflow(base_url=base_url, bearer_token=bearer_token, _strict_response_validation=True)
+        client = Mpesaflow(base_url=base_url, app_api_key=app_api_key, _strict_response_validation=True)
         with client as c2:
             assert c2 is client
             assert not c2.is_closed()
@@ -691,7 +694,7 @@ class TestMpesaflow:
         with pytest.raises(TypeError, match=r"max_retries cannot be None"):
             Mpesaflow(
                 base_url=base_url,
-                bearer_token=bearer_token,
+                app_api_key=app_api_key,
                 _strict_response_validation=True,
                 max_retries=cast(Any, None),
             )
@@ -703,12 +706,12 @@ class TestMpesaflow:
 
         respx_mock.get("/foo").mock(return_value=httpx.Response(200, text="my-custom-format"))
 
-        strict_client = Mpesaflow(base_url=base_url, bearer_token=bearer_token, _strict_response_validation=True)
+        strict_client = Mpesaflow(base_url=base_url, app_api_key=app_api_key, _strict_response_validation=True)
 
         with pytest.raises(APIResponseValidationError):
             strict_client.get("/foo", cast_to=Model)
 
-        client = Mpesaflow(base_url=base_url, bearer_token=bearer_token, _strict_response_validation=False)
+        client = Mpesaflow(base_url=base_url, app_api_key=app_api_key, _strict_response_validation=False)
 
         response = client.get("/foo", cast_to=Model)
         assert isinstance(response, str)  # type: ignore[unreachable]
@@ -736,7 +739,7 @@ class TestMpesaflow:
     )
     @mock.patch("time.time", mock.MagicMock(return_value=1696004797))
     def test_parse_retry_after_header(self, remaining_retries: int, retry_after: str, timeout: float) -> None:
-        client = Mpesaflow(base_url=base_url, bearer_token=bearer_token, _strict_response_validation=True)
+        client = Mpesaflow(base_url=base_url, app_api_key=app_api_key, _strict_response_validation=True)
 
         headers = httpx.Headers({"retry-after": retry_after})
         options = FinalRequestOptions(method="get", url="/foo", max_retries=3)
@@ -746,11 +749,11 @@ class TestMpesaflow:
     @mock.patch("mpesaflow._base_client.BaseClient._calculate_retry_timeout", _low_retry_timeout)
     @pytest.mark.respx(base_url=base_url)
     def test_retrying_timeout_errors_doesnt_leak(self, respx_mock: MockRouter) -> None:
-        respx_mock.post("/apps/create").mock(side_effect=httpx.TimeoutException("Test timeout error"))
+        respx_mock.post("/transactions/create").mock(side_effect=httpx.TimeoutException("Test timeout error"))
 
         with pytest.raises(APITimeoutError):
             self.client.post(
-                "/apps/create",
+                "/transactions/create",
                 body=cast(object, dict()),
                 cast_to=httpx.Response,
                 options={"headers": {RAW_RESPONSE_HEADER: "stream"}},
@@ -761,11 +764,11 @@ class TestMpesaflow:
     @mock.patch("mpesaflow._base_client.BaseClient._calculate_retry_timeout", _low_retry_timeout)
     @pytest.mark.respx(base_url=base_url)
     def test_retrying_status_errors_doesnt_leak(self, respx_mock: MockRouter) -> None:
-        respx_mock.post("/apps/create").mock(return_value=httpx.Response(500))
+        respx_mock.post("/transactions/create").mock(return_value=httpx.Response(500))
 
         with pytest.raises(APIStatusError):
             self.client.post(
-                "/apps/create",
+                "/transactions/create",
                 body=cast(object, dict()),
                 cast_to=httpx.Response,
                 options={"headers": {RAW_RESPONSE_HEADER: "stream"}},
@@ -797,9 +800,9 @@ class TestMpesaflow:
                 return httpx.Response(500)
             return httpx.Response(200)
 
-        respx_mock.post("/apps/create").mock(side_effect=retry_handler)
+        respx_mock.post("/transactions/create").mock(side_effect=retry_handler)
 
-        response = client.apps.with_raw_response.create()
+        response = client.transactions.with_raw_response.create()
 
         assert response.retries_taken == failures_before_success
         assert int(response.http_request.headers.get("x-stainless-retry-count")) == failures_before_success
@@ -821,9 +824,9 @@ class TestMpesaflow:
                 return httpx.Response(500)
             return httpx.Response(200)
 
-        respx_mock.post("/apps/create").mock(side_effect=retry_handler)
+        respx_mock.post("/transactions/create").mock(side_effect=retry_handler)
 
-        response = client.apps.with_raw_response.create(extra_headers={"x-stainless-retry-count": Omit()})
+        response = client.transactions.with_raw_response.create(extra_headers={"x-stainless-retry-count": Omit()})
 
         assert len(response.http_request.headers.get_list("x-stainless-retry-count")) == 0
 
@@ -844,15 +847,15 @@ class TestMpesaflow:
                 return httpx.Response(500)
             return httpx.Response(200)
 
-        respx_mock.post("/apps/create").mock(side_effect=retry_handler)
+        respx_mock.post("/transactions/create").mock(side_effect=retry_handler)
 
-        response = client.apps.with_raw_response.create(extra_headers={"x-stainless-retry-count": "42"})
+        response = client.transactions.with_raw_response.create(extra_headers={"x-stainless-retry-count": "42"})
 
         assert response.http_request.headers.get("x-stainless-retry-count") == "42"
 
 
 class TestAsyncMpesaflow:
-    client = AsyncMpesaflow(base_url=base_url, bearer_token=bearer_token, _strict_response_validation=True)
+    client = AsyncMpesaflow(base_url=base_url, app_api_key=app_api_key, _strict_response_validation=True)
 
     @pytest.mark.respx(base_url=base_url)
     @pytest.mark.asyncio
@@ -880,9 +883,9 @@ class TestAsyncMpesaflow:
         copied = self.client.copy()
         assert id(copied) != id(self.client)
 
-        copied = self.client.copy(bearer_token="another My Bearer Token")
-        assert copied.bearer_token == "another My Bearer Token"
-        assert self.client.bearer_token == "My Bearer Token"
+        copied = self.client.copy(app_api_key="another My App API Key")
+        assert copied.app_api_key == "another My App API Key"
+        assert self.client.app_api_key == "My App API Key"
 
     def test_copy_default_options(self) -> None:
         # options that have a default are overridden correctly
@@ -903,7 +906,7 @@ class TestAsyncMpesaflow:
     def test_copy_default_headers(self) -> None:
         client = AsyncMpesaflow(
             base_url=base_url,
-            bearer_token=bearer_token,
+            app_api_key=app_api_key,
             _strict_response_validation=True,
             default_headers={"X-Foo": "bar"},
         )
@@ -939,7 +942,7 @@ class TestAsyncMpesaflow:
 
     def test_copy_default_query(self) -> None:
         client = AsyncMpesaflow(
-            base_url=base_url, bearer_token=bearer_token, _strict_response_validation=True, default_query={"foo": "bar"}
+            base_url=base_url, app_api_key=app_api_key, _strict_response_validation=True, default_query={"foo": "bar"}
         )
         assert _get_params(client)["foo"] == "bar"
 
@@ -1064,7 +1067,7 @@ class TestAsyncMpesaflow:
 
     async def test_client_timeout_option(self) -> None:
         client = AsyncMpesaflow(
-            base_url=base_url, bearer_token=bearer_token, _strict_response_validation=True, timeout=httpx.Timeout(0)
+            base_url=base_url, app_api_key=app_api_key, _strict_response_validation=True, timeout=httpx.Timeout(0)
         )
 
         request = client._build_request(FinalRequestOptions(method="get", url="/foo"))
@@ -1075,7 +1078,7 @@ class TestAsyncMpesaflow:
         # custom timeout given to the httpx client should be used
         async with httpx.AsyncClient(timeout=None) as http_client:
             client = AsyncMpesaflow(
-                base_url=base_url, bearer_token=bearer_token, _strict_response_validation=True, http_client=http_client
+                base_url=base_url, app_api_key=app_api_key, _strict_response_validation=True, http_client=http_client
             )
 
             request = client._build_request(FinalRequestOptions(method="get", url="/foo"))
@@ -1085,7 +1088,7 @@ class TestAsyncMpesaflow:
         # no timeout given to the httpx client should not use the httpx default
         async with httpx.AsyncClient() as http_client:
             client = AsyncMpesaflow(
-                base_url=base_url, bearer_token=bearer_token, _strict_response_validation=True, http_client=http_client
+                base_url=base_url, app_api_key=app_api_key, _strict_response_validation=True, http_client=http_client
             )
 
             request = client._build_request(FinalRequestOptions(method="get", url="/foo"))
@@ -1095,7 +1098,7 @@ class TestAsyncMpesaflow:
         # explicitly passing the default timeout currently results in it being ignored
         async with httpx.AsyncClient(timeout=HTTPX_DEFAULT_TIMEOUT) as http_client:
             client = AsyncMpesaflow(
-                base_url=base_url, bearer_token=bearer_token, _strict_response_validation=True, http_client=http_client
+                base_url=base_url, app_api_key=app_api_key, _strict_response_validation=True, http_client=http_client
             )
 
             request = client._build_request(FinalRequestOptions(method="get", url="/foo"))
@@ -1107,7 +1110,7 @@ class TestAsyncMpesaflow:
             with httpx.Client() as http_client:
                 AsyncMpesaflow(
                     base_url=base_url,
-                    bearer_token=bearer_token,
+                    app_api_key=app_api_key,
                     _strict_response_validation=True,
                     http_client=cast(Any, http_client),
                 )
@@ -1115,7 +1118,7 @@ class TestAsyncMpesaflow:
     def test_default_headers_option(self) -> None:
         client = AsyncMpesaflow(
             base_url=base_url,
-            bearer_token=bearer_token,
+            app_api_key=app_api_key,
             _strict_response_validation=True,
             default_headers={"X-Foo": "bar"},
         )
@@ -1125,7 +1128,7 @@ class TestAsyncMpesaflow:
 
         client2 = AsyncMpesaflow(
             base_url=base_url,
-            bearer_token=bearer_token,
+            app_api_key=app_api_key,
             _strict_response_validation=True,
             default_headers={
                 "X-Foo": "stainless",
@@ -1137,19 +1140,28 @@ class TestAsyncMpesaflow:
         assert request.headers.get("x-stainless-lang") == "my-overriding-header"
 
     def test_validate_headers(self) -> None:
-        client = AsyncMpesaflow(base_url=base_url, bearer_token=bearer_token, _strict_response_validation=True)
+        client = AsyncMpesaflow(base_url=base_url, app_api_key=app_api_key, _strict_response_validation=True)
         request = client._build_request(FinalRequestOptions(method="get", url="/foo"))
-        assert request.headers.get("Authorization") == f"Bearer {bearer_token}"
+        assert request.headers.get("X-App-Api-Key") == app_api_key
 
-        with pytest.raises(MpesaflowError):
-            with update_env(**{"MPESAFLOW_API_TOKEN": Omit()}):
-                client2 = AsyncMpesaflow(base_url=base_url, bearer_token=None, _strict_response_validation=True)
-            _ = client2
+        with update_env(**{"APP_API_KEY": Omit()}):
+            client2 = AsyncMpesaflow(base_url=base_url, app_api_key=None, _strict_response_validation=True)
+
+        with pytest.raises(
+            TypeError,
+            match="Could not resolve authentication method. Expected either app_api_key or root_api_key to be set. Or for one of the `X-App-Api-Key` or `X-Root-Api-Key` headers to be explicitly omitted",
+        ):
+            client2._build_request(FinalRequestOptions(method="get", url="/foo"))
+
+        request2 = client2._build_request(
+            FinalRequestOptions(method="get", url="/foo", headers={"X-App-Api-Key": Omit()})
+        )
+        assert request2.headers.get("X-App-Api-Key") is None
 
     def test_default_query_option(self) -> None:
         client = AsyncMpesaflow(
             base_url=base_url,
-            bearer_token=bearer_token,
+            app_api_key=app_api_key,
             _strict_response_validation=True,
             default_query={"query_param": "bar"},
         )
@@ -1352,7 +1364,7 @@ class TestAsyncMpesaflow:
 
     def test_base_url_setter(self) -> None:
         client = AsyncMpesaflow(
-            base_url="https://example.com/from_init", bearer_token=bearer_token, _strict_response_validation=True
+            base_url="https://example.com/from_init", app_api_key=app_api_key, _strict_response_validation=True
         )
         assert client.base_url == "https://example.com/from_init/"
 
@@ -1362,16 +1374,16 @@ class TestAsyncMpesaflow:
 
     def test_base_url_env(self) -> None:
         with update_env(MPESAFLOW_BASE_URL="http://localhost:5000/from/env"):
-            client = AsyncMpesaflow(bearer_token=bearer_token, _strict_response_validation=True)
+            client = AsyncMpesaflow(app_api_key=app_api_key, _strict_response_validation=True)
             assert client.base_url == "http://localhost:5000/from/env/"
 
         # explicit environment arg requires explicitness
         with update_env(MPESAFLOW_BASE_URL="http://localhost:5000/from/env"):
             with pytest.raises(ValueError, match=r"you must pass base_url=None"):
-                AsyncMpesaflow(bearer_token=bearer_token, _strict_response_validation=True, environment="production")
+                AsyncMpesaflow(app_api_key=app_api_key, _strict_response_validation=True, environment="production")
 
             client = AsyncMpesaflow(
-                base_url=None, bearer_token=bearer_token, _strict_response_validation=True, environment="production"
+                base_url=None, app_api_key=app_api_key, _strict_response_validation=True, environment="production"
             )
             assert str(client.base_url).startswith("https://api.mpesaflow.com")
 
@@ -1379,13 +1391,11 @@ class TestAsyncMpesaflow:
         "client",
         [
             AsyncMpesaflow(
-                base_url="http://localhost:5000/custom/path/",
-                bearer_token=bearer_token,
-                _strict_response_validation=True,
+                base_url="http://localhost:5000/custom/path/", app_api_key=app_api_key, _strict_response_validation=True
             ),
             AsyncMpesaflow(
                 base_url="http://localhost:5000/custom/path/",
-                bearer_token=bearer_token,
+                app_api_key=app_api_key,
                 _strict_response_validation=True,
                 http_client=httpx.AsyncClient(),
             ),
@@ -1406,13 +1416,11 @@ class TestAsyncMpesaflow:
         "client",
         [
             AsyncMpesaflow(
-                base_url="http://localhost:5000/custom/path/",
-                bearer_token=bearer_token,
-                _strict_response_validation=True,
+                base_url="http://localhost:5000/custom/path/", app_api_key=app_api_key, _strict_response_validation=True
             ),
             AsyncMpesaflow(
                 base_url="http://localhost:5000/custom/path/",
-                bearer_token=bearer_token,
+                app_api_key=app_api_key,
                 _strict_response_validation=True,
                 http_client=httpx.AsyncClient(),
             ),
@@ -1433,13 +1441,11 @@ class TestAsyncMpesaflow:
         "client",
         [
             AsyncMpesaflow(
-                base_url="http://localhost:5000/custom/path/",
-                bearer_token=bearer_token,
-                _strict_response_validation=True,
+                base_url="http://localhost:5000/custom/path/", app_api_key=app_api_key, _strict_response_validation=True
             ),
             AsyncMpesaflow(
                 base_url="http://localhost:5000/custom/path/",
-                bearer_token=bearer_token,
+                app_api_key=app_api_key,
                 _strict_response_validation=True,
                 http_client=httpx.AsyncClient(),
             ),
@@ -1457,7 +1463,7 @@ class TestAsyncMpesaflow:
         assert request.url == "https://myapi.com/foo"
 
     async def test_copied_client_does_not_close_http(self) -> None:
-        client = AsyncMpesaflow(base_url=base_url, bearer_token=bearer_token, _strict_response_validation=True)
+        client = AsyncMpesaflow(base_url=base_url, app_api_key=app_api_key, _strict_response_validation=True)
         assert not client.is_closed()
 
         copied = client.copy()
@@ -1469,7 +1475,7 @@ class TestAsyncMpesaflow:
         assert not client.is_closed()
 
     async def test_client_context_manager(self) -> None:
-        client = AsyncMpesaflow(base_url=base_url, bearer_token=bearer_token, _strict_response_validation=True)
+        client = AsyncMpesaflow(base_url=base_url, app_api_key=app_api_key, _strict_response_validation=True)
         async with client as c2:
             assert c2 is client
             assert not c2.is_closed()
@@ -1493,7 +1499,7 @@ class TestAsyncMpesaflow:
         with pytest.raises(TypeError, match=r"max_retries cannot be None"):
             AsyncMpesaflow(
                 base_url=base_url,
-                bearer_token=bearer_token,
+                app_api_key=app_api_key,
                 _strict_response_validation=True,
                 max_retries=cast(Any, None),
             )
@@ -1506,12 +1512,12 @@ class TestAsyncMpesaflow:
 
         respx_mock.get("/foo").mock(return_value=httpx.Response(200, text="my-custom-format"))
 
-        strict_client = AsyncMpesaflow(base_url=base_url, bearer_token=bearer_token, _strict_response_validation=True)
+        strict_client = AsyncMpesaflow(base_url=base_url, app_api_key=app_api_key, _strict_response_validation=True)
 
         with pytest.raises(APIResponseValidationError):
             await strict_client.get("/foo", cast_to=Model)
 
-        client = AsyncMpesaflow(base_url=base_url, bearer_token=bearer_token, _strict_response_validation=False)
+        client = AsyncMpesaflow(base_url=base_url, app_api_key=app_api_key, _strict_response_validation=False)
 
         response = await client.get("/foo", cast_to=Model)
         assert isinstance(response, str)  # type: ignore[unreachable]
@@ -1540,7 +1546,7 @@ class TestAsyncMpesaflow:
     @mock.patch("time.time", mock.MagicMock(return_value=1696004797))
     @pytest.mark.asyncio
     async def test_parse_retry_after_header(self, remaining_retries: int, retry_after: str, timeout: float) -> None:
-        client = AsyncMpesaflow(base_url=base_url, bearer_token=bearer_token, _strict_response_validation=True)
+        client = AsyncMpesaflow(base_url=base_url, app_api_key=app_api_key, _strict_response_validation=True)
 
         headers = httpx.Headers({"retry-after": retry_after})
         options = FinalRequestOptions(method="get", url="/foo", max_retries=3)
@@ -1550,11 +1556,11 @@ class TestAsyncMpesaflow:
     @mock.patch("mpesaflow._base_client.BaseClient._calculate_retry_timeout", _low_retry_timeout)
     @pytest.mark.respx(base_url=base_url)
     async def test_retrying_timeout_errors_doesnt_leak(self, respx_mock: MockRouter) -> None:
-        respx_mock.post("/apps/create").mock(side_effect=httpx.TimeoutException("Test timeout error"))
+        respx_mock.post("/transactions/create").mock(side_effect=httpx.TimeoutException("Test timeout error"))
 
         with pytest.raises(APITimeoutError):
             await self.client.post(
-                "/apps/create",
+                "/transactions/create",
                 body=cast(object, dict()),
                 cast_to=httpx.Response,
                 options={"headers": {RAW_RESPONSE_HEADER: "stream"}},
@@ -1565,11 +1571,11 @@ class TestAsyncMpesaflow:
     @mock.patch("mpesaflow._base_client.BaseClient._calculate_retry_timeout", _low_retry_timeout)
     @pytest.mark.respx(base_url=base_url)
     async def test_retrying_status_errors_doesnt_leak(self, respx_mock: MockRouter) -> None:
-        respx_mock.post("/apps/create").mock(return_value=httpx.Response(500))
+        respx_mock.post("/transactions/create").mock(return_value=httpx.Response(500))
 
         with pytest.raises(APIStatusError):
             await self.client.post(
-                "/apps/create",
+                "/transactions/create",
                 body=cast(object, dict()),
                 cast_to=httpx.Response,
                 options={"headers": {RAW_RESPONSE_HEADER: "stream"}},
@@ -1602,9 +1608,9 @@ class TestAsyncMpesaflow:
                 return httpx.Response(500)
             return httpx.Response(200)
 
-        respx_mock.post("/apps/create").mock(side_effect=retry_handler)
+        respx_mock.post("/transactions/create").mock(side_effect=retry_handler)
 
-        response = await client.apps.with_raw_response.create()
+        response = await client.transactions.with_raw_response.create()
 
         assert response.retries_taken == failures_before_success
         assert int(response.http_request.headers.get("x-stainless-retry-count")) == failures_before_success
@@ -1627,9 +1633,9 @@ class TestAsyncMpesaflow:
                 return httpx.Response(500)
             return httpx.Response(200)
 
-        respx_mock.post("/apps/create").mock(side_effect=retry_handler)
+        respx_mock.post("/transactions/create").mock(side_effect=retry_handler)
 
-        response = await client.apps.with_raw_response.create(extra_headers={"x-stainless-retry-count": Omit()})
+        response = await client.transactions.with_raw_response.create(extra_headers={"x-stainless-retry-count": Omit()})
 
         assert len(response.http_request.headers.get_list("x-stainless-retry-count")) == 0
 
@@ -1651,8 +1657,8 @@ class TestAsyncMpesaflow:
                 return httpx.Response(500)
             return httpx.Response(200)
 
-        respx_mock.post("/apps/create").mock(side_effect=retry_handler)
+        respx_mock.post("/transactions/create").mock(side_effect=retry_handler)
 
-        response = await client.apps.with_raw_response.create(extra_headers={"x-stainless-retry-count": "42"})
+        response = await client.transactions.with_raw_response.create(extra_headers={"x-stainless-retry-count": "42"})
 
         assert response.http_request.headers.get("x-stainless-retry-count") == "42"
