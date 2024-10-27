@@ -9,5 +9,6 @@ from .app_create_params import AppCreateParams as AppCreateParams
 from .app_create_response import AppCreateResponse as AppCreateResponse
 from .app_delete_response import AppDeleteResponse as AppDeleteResponse
 from .transaction_list_params import TransactionListParams as TransactionListParams
+from .health_retrieve_response import HealthRetrieveResponse as HealthRetrieveResponse
 from .transaction_create_params import TransactionCreateParams as TransactionCreateParams
 from .transaction_create_response import TransactionCreateResponse as TransactionCreateResponse

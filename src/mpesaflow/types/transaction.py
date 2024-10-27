@@ -12,7 +12,7 @@ __all__ = ["Transaction"]
 
 
 class Transaction(BaseModel):
-    id: Optional[str] = None
+    id: str
 
     account_reference: Optional[str] = FieldInfo(alias="accountReference", default=None)
 
