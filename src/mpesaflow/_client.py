@@ -12,9 +12,7 @@ from . import resources, _exceptions
 from ._qs import Querystring
 from ._types import (
     NOT_GIVEN,
-    Body,
     Omit,
-    Query,
     Headers,
     Timeout,
     NotGiven,
@@ -27,19 +25,12 @@ from ._utils import (
     get_async_library,
 )
 from ._version import __version__
-from ._response import (
-    to_raw_response_wrapper,
-    to_streamed_response_wrapper,
-    async_to_raw_response_wrapper,
-    async_to_streamed_response_wrapper,
-)
 from ._streaming import Stream as Stream, AsyncStream as AsyncStream
-from ._exceptions import APIStatusError, MpesaflowError
+from ._exceptions import APIStatusError
 from ._base_client import (
     DEFAULT_MAX_RETRIES,
     SyncAPIClient,
     AsyncAPIClient,
-    make_request_options,
 )
 
 __all__ = [
@@ -68,14 +59,16 @@ class Mpesaflow(SyncAPIClient):
     with_streaming_response: MpesaflowWithStreamedResponse
 
     # client options
-    bearer_token: str
+    app_api_key: str | None
+    root_api_key: str | None
 
     _environment: Literal["production", "sandbox"] | NotGiven
 
     def __init__(
         self,
         *,
-        bearer_token: str | None = None,
+        app_api_key: str | None = None,
+        root_api_key: str | None = None,
         environment: Literal["production", "sandbox"] | NotGiven = NOT_GIVEN,
         base_url: str | httpx.URL | None | NotGiven = NOT_GIVEN,
         timeout: Union[float, Timeout, None, NotGiven] = NOT_GIVEN,
@@ -98,15 +91,17 @@ class Mpesaflow(SyncAPIClient):
     ) -> None:
         """Construct a new synchronous mpesaflow client instance.
 
-        This automatically infers the `bearer_token` argument from the `MPESAFLOW_API_TOKEN` environment variable if it is not provided.
+        This automatically infers the following arguments from their corresponding environment variables if they are not provided:
+        - `app_api_key` from `APP_API_KEY`
+        - `root_api_key` from `ROOT_API_KEY`
         """
-        if bearer_token is None:
-            bearer_token = os.environ.get("MPESAFLOW_API_TOKEN")
-        if bearer_token is None:
-            raise MpesaflowError(
-                "The bearer_token client option must be set either by passing bearer_token to the client or by setting the MPESAFLOW_API_TOKEN environment variable"
-            )
-        self.bearer_token = bearer_token
+        if app_api_key is None:
+            app_api_key = os.environ.get("APP_API_KEY")
+        self.app_api_key = app_api_key
+
+        if root_api_key is None:
+            root_api_key = os.environ.get("ROOT_API_KEY")
+        self.root_api_key = root_api_key
 
         self._environment = environment
 
@@ -158,8 +153,25 @@ class Mpesaflow(SyncAPIClient):
     @property
     @override
     def auth_headers(self) -> dict[str, str]:
-        bearer_token = self.bearer_token
-        return {"Authorization": f"Bearer {bearer_token}"}
+        if self._app_api_key:
+            return self._app_api_key
+        if self._root_api_key:
+            return self._root_api_key
+        return {}
+
+    @property
+    def _app_api_key(self) -> dict[str, str]:
+        app_api_key = self.app_api_key
+        if app_api_key is None:
+            return {}
+        return {"X-App-Api-Key": app_api_key}
+
+    @property
+    def _root_api_key(self) -> dict[str, str]:
+        root_api_key = self.root_api_key
+        if root_api_key is None:
+            return {}
+        return {"X-Root-Api-Key": root_api_key}
 
     @property
     @override
@@ -170,10 +182,27 @@ class Mpesaflow(SyncAPIClient):
             **self._custom_headers,
         }
 
+    @override
+    def _validate_headers(self, headers: Headers, custom_headers: Headers) -> None:
+        if self.app_api_key and headers.get("X-App-Api-Key"):
+            return
+        if isinstance(custom_headers.get("X-App-Api-Key"), Omit):
+            return
+
+        if self.root_api_key and headers.get("X-Root-Api-Key"):
+            return
+        if isinstance(custom_headers.get("X-Root-Api-Key"), Omit):
+            return
+
+        raise TypeError(
+            '"Could not resolve authentication method. Expected either app_api_key or root_api_key to be set. Or for one of the `X-App-Api-Key` or `X-Root-Api-Key` headers to be explicitly omitted"'
+        )
+
     def copy(
         self,
         *,
-        bearer_token: str | None = None,
+        app_api_key: str | None = None,
+        root_api_key: str | None = None,
         environment: Literal["production", "sandbox"] | None = None,
         base_url: str | httpx.URL | None = None,
         timeout: float | Timeout | None | NotGiven = NOT_GIVEN,
@@ -208,7 +237,8 @@ class Mpesaflow(SyncAPIClient):
 
         http_client = http_client or self._client
         return self.__class__(
-            bearer_token=bearer_token or self.bearer_token,
+            app_api_key=app_api_key or self.app_api_key,
+            root_api_key=root_api_key or self.root_api_key,
             base_url=base_url or self.base_url,
             environment=environment or self._environment,
             timeout=self.timeout if isinstance(timeout, NotGiven) else timeout,
@@ -222,26 +252,6 @@ class Mpesaflow(SyncAPIClient):
     # Alias for `copy` for nicer inline usage, e.g.
     # client.with_options(timeout=10).foo.create(...)
     with_options = copy
-
-    def health(
-        self,
-        *,
-        # Use the following arguments if you need to pass additional parameters to the API that aren't available via kwargs.
-        # The extra values given here take precedence over values defined on the client or passed to this method.
-        extra_headers: Headers | None = None,
-        extra_query: Query | None = None,
-        extra_body: Body | None = None,
-        timeout: float | httpx.Timeout | None | NotGiven = NOT_GIVEN,
-    ) -> str:
-        """Health check endpoint"""
-        extra_headers = {"Accept": "text/plain", **(extra_headers or {})}
-        return self.get(
-            "/health",
-            options=make_request_options(
-                extra_headers=extra_headers, extra_query=extra_query, extra_body=extra_body, timeout=timeout
-            ),
-            cast_to=str,
-        )
 
     @override
     def _make_status_error(
@@ -284,14 +294,16 @@ class AsyncMpesaflow(AsyncAPIClient):
     with_streaming_response: AsyncMpesaflowWithStreamedResponse
 
     # client options
-    bearer_token: str
+    app_api_key: str | None
+    root_api_key: str | None
 
     _environment: Literal["production", "sandbox"] | NotGiven
 
     def __init__(
         self,
         *,
-        bearer_token: str | None = None,
+        app_api_key: str | None = None,
+        root_api_key: str | None = None,
         environment: Literal["production", "sandbox"] | NotGiven = NOT_GIVEN,
         base_url: str | httpx.URL | None | NotGiven = NOT_GIVEN,
         timeout: Union[float, Timeout, None, NotGiven] = NOT_GIVEN,
@@ -314,15 +326,17 @@ class AsyncMpesaflow(AsyncAPIClient):
     ) -> None:
         """Construct a new async mpesaflow client instance.
 
-        This automatically infers the `bearer_token` argument from the `MPESAFLOW_API_TOKEN` environment variable if it is not provided.
+        This automatically infers the following arguments from their corresponding environment variables if they are not provided:
+        - `app_api_key` from `APP_API_KEY`
+        - `root_api_key` from `ROOT_API_KEY`
         """
-        if bearer_token is None:
-            bearer_token = os.environ.get("MPESAFLOW_API_TOKEN")
-        if bearer_token is None:
-            raise MpesaflowError(
-                "The bearer_token client option must be set either by passing bearer_token to the client or by setting the MPESAFLOW_API_TOKEN environment variable"
-            )
-        self.bearer_token = bearer_token
+        if app_api_key is None:
+            app_api_key = os.environ.get("APP_API_KEY")
+        self.app_api_key = app_api_key
+
+        if root_api_key is None:
+            root_api_key = os.environ.get("ROOT_API_KEY")
+        self.root_api_key = root_api_key
 
         self._environment = environment
 
@@ -374,8 +388,25 @@ class AsyncMpesaflow(AsyncAPIClient):
     @property
     @override
     def auth_headers(self) -> dict[str, str]:
-        bearer_token = self.bearer_token
-        return {"Authorization": f"Bearer {bearer_token}"}
+        if self._app_api_key:
+            return self._app_api_key
+        if self._root_api_key:
+            return self._root_api_key
+        return {}
+
+    @property
+    def _app_api_key(self) -> dict[str, str]:
+        app_api_key = self.app_api_key
+        if app_api_key is None:
+            return {}
+        return {"X-App-Api-Key": app_api_key}
+
+    @property
+    def _root_api_key(self) -> dict[str, str]:
+        root_api_key = self.root_api_key
+        if root_api_key is None:
+            return {}
+        return {"X-Root-Api-Key": root_api_key}
 
     @property
     @override
@@ -386,10 +417,27 @@ class AsyncMpesaflow(AsyncAPIClient):
             **self._custom_headers,
         }
 
+    @override
+    def _validate_headers(self, headers: Headers, custom_headers: Headers) -> None:
+        if self.app_api_key and headers.get("X-App-Api-Key"):
+            return
+        if isinstance(custom_headers.get("X-App-Api-Key"), Omit):
+            return
+
+        if self.root_api_key and headers.get("X-Root-Api-Key"):
+            return
+        if isinstance(custom_headers.get("X-Root-Api-Key"), Omit):
+            return
+
+        raise TypeError(
+            '"Could not resolve authentication method. Expected either app_api_key or root_api_key to be set. Or for one of the `X-App-Api-Key` or `X-Root-Api-Key` headers to be explicitly omitted"'
+        )
+
     def copy(
         self,
         *,
-        bearer_token: str | None = None,
+        app_api_key: str | None = None,
+        root_api_key: str | None = None,
         environment: Literal["production", "sandbox"] | None = None,
         base_url: str | httpx.URL | None = None,
         timeout: float | Timeout | None | NotGiven = NOT_GIVEN,
@@ -424,7 +472,8 @@ class AsyncMpesaflow(AsyncAPIClient):
 
         http_client = http_client or self._client
         return self.__class__(
-            bearer_token=bearer_token or self.bearer_token,
+            app_api_key=app_api_key or self.app_api_key,
+            root_api_key=root_api_key or self.root_api_key,
             base_url=base_url or self.base_url,
             environment=environment or self._environment,
             timeout=self.timeout if isinstance(timeout, NotGiven) else timeout,
@@ -438,26 +487,6 @@ class AsyncMpesaflow(AsyncAPIClient):
     # Alias for `copy` for nicer inline usage, e.g.
     # client.with_options(timeout=10).foo.create(...)
     with_options = copy
-
-    async def health(
-        self,
-        *,
-        # Use the following arguments if you need to pass additional parameters to the API that aren't available via kwargs.
-        # The extra values given here take precedence over values defined on the client or passed to this method.
-        extra_headers: Headers | None = None,
-        extra_query: Query | None = None,
-        extra_body: Body | None = None,
-        timeout: float | httpx.Timeout | None | NotGiven = NOT_GIVEN,
-    ) -> str:
-        """Health check endpoint"""
-        extra_headers = {"Accept": "text/plain", **(extra_headers or {})}
-        return await self.get(
-            "/health",
-            options=make_request_options(
-                extra_headers=extra_headers, extra_query=extra_query, extra_body=extra_body, timeout=timeout
-            ),
-            cast_to=str,
-        )
 
     @override
     def _make_status_error(
@@ -498,19 +527,11 @@ class MpesaflowWithRawResponse:
         self.apps = resources.AppsResourceWithRawResponse(client.apps)
         self.transactions = resources.TransactionsResourceWithRawResponse(client.transactions)
 
-        self.health = to_raw_response_wrapper(
-            client.health,
-        )
-
 
 class AsyncMpesaflowWithRawResponse:
     def __init__(self, client: AsyncMpesaflow) -> None:
         self.apps = resources.AsyncAppsResourceWithRawResponse(client.apps)
         self.transactions = resources.AsyncTransactionsResourceWithRawResponse(client.transactions)
-
-        self.health = async_to_raw_response_wrapper(
-            client.health,
-        )
 
 
 class MpesaflowWithStreamedResponse:
@@ -518,19 +539,11 @@ class MpesaflowWithStreamedResponse:
         self.apps = resources.AppsResourceWithStreamingResponse(client.apps)
         self.transactions = resources.TransactionsResourceWithStreamingResponse(client.transactions)
 
-        self.health = to_streamed_response_wrapper(
-            client.health,
-        )
-
 
 class AsyncMpesaflowWithStreamedResponse:
     def __init__(self, client: AsyncMpesaflow) -> None:
         self.apps = resources.AsyncAppsResourceWithStreamingResponse(client.apps)
         self.transactions = resources.AsyncTransactionsResourceWithStreamingResponse(client.transactions)
-
-        self.health = async_to_streamed_response_wrapper(
-            client.health,
-        )
 
 
 Client = Mpesaflow
