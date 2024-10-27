@@ -10,7 +10,7 @@ __all__ = ["APIKeyListResponse"]
 
 
 class APIKeyListResponse(BaseModel):
-    id: Optional[str] = None
+    id: str
 
     application_id: Optional[str] = FieldInfo(alias="applicationId", default=None)
 
