@@ -5,7 +5,7 @@ description = "The official Python library for the mpesaflow API"
 dynamic = ["readme"]
 license = "Apache-2.0"
 authors = [
-{ name = "Mpesaflow", email = "support@mpesaflow.com" },
+{ name = "Mpesaflow", email = "evansso@mpesaflow.com" },
 ]
 dependencies = [
     "httpx>=0.23.0, <1",
