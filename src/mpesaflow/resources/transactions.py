@@ -18,9 +18,9 @@ from .._response import (
     async_to_raw_response_wrapper,
     async_to_streamed_response_wrapper,
 )
-from .._base_client import make_request_options
+from ..pagination import SyncCursorIDPagination, AsyncCursorIDPagination
+from .._base_client import AsyncPaginator, make_request_options
 from ..types.transaction import Transaction
-from ..types.transaction_list_response import TransactionListResponse
 from ..types.transaction_create_response import TransactionCreateResponse
 
 __all__ = ["TransactionsResource", "AsyncTransactionsResource"]
@@ -137,7 +137,7 @@ class TransactionsResource(SyncAPIResource):
         extra_query: Query | None = None,
         extra_body: Body | None = None,
         timeout: float | httpx.Timeout | None | NotGiven = NOT_GIVEN,
-    ) -> TransactionListResponse:
+    ) -> SyncCursorIDPagination[Transaction]:
         """
         List all transactions
 
@@ -156,8 +156,9 @@ class TransactionsResource(SyncAPIResource):
 
           timeout: Override the client-level default timeout for this request, in seconds
         """
-        return self._get(
+        return self._get_api_list(
             "/transactions/list",
+            page=SyncCursorIDPagination[Transaction],
             options=make_request_options(
                 extra_headers=extra_headers,
                 extra_query=extra_query,
@@ -173,7 +174,7 @@ class TransactionsResource(SyncAPIResource):
                     transaction_list_params.TransactionListParams,
                 ),
             ),
-            cast_to=TransactionListResponse,
+            model=Transaction,
         )
 
 
@@ -275,7 +276,7 @@ class AsyncTransactionsResource(AsyncAPIResource):
             cast_to=Transaction,
         )
 
-    async def list(
+    def list(
         self,
         *,
         app_id: str,
@@ -288,7 +289,7 @@ class AsyncTransactionsResource(AsyncAPIResource):
         extra_query: Query | None = None,
         extra_body: Body | None = None,
         timeout: float | httpx.Timeout | None | NotGiven = NOT_GIVEN,
-    ) -> TransactionListResponse:
+    ) -> AsyncPaginator[Transaction, AsyncCursorIDPagination[Transaction]]:
         """
         List all transactions
 
@@ -307,14 +308,15 @@ class AsyncTransactionsResource(AsyncAPIResource):
 
           timeout: Override the client-level default timeout for this request, in seconds
         """
-        return await self._get(
+        return self._get_api_list(
             "/transactions/list",
+            page=AsyncCursorIDPagination[Transaction],
             options=make_request_options(
                 extra_headers=extra_headers,
                 extra_query=extra_query,
                 extra_body=extra_body,
                 timeout=timeout,
-                query=await async_maybe_transform(
+                query=maybe_transform(
                     {
                         "app_id": app_id,
                         "ending_before": ending_before,
@@ -324,7 +326,7 @@ class AsyncTransactionsResource(AsyncAPIResource):
                     transaction_list_params.TransactionListParams,
                 ),
             ),
-            cast_to=TransactionListResponse,
+            model=Transaction,
         )
 
 
