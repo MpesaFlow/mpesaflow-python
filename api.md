@@ -1,3 +1,15 @@
+# Mpesaflow
+
+Types:
+
+```python
+from mpesaflow.types import HealthResponse
+```
+
+Methods:
+
+- <code title="get /health">client.<a href="./src/mpesaflow/_client.py">health</a>() -> <a href="./src/mpesaflow/types/health_response.py">HealthResponse</a></code>
+
 # Apps
 
 Types:
@@ -39,15 +51,3 @@ Methods:
 - <code title="post /transactions/create">client.transactions.<a href="./src/mpesaflow/resources/transactions.py">create</a>(\*\*<a href="src/mpesaflow/types/transaction_create_params.py">params</a>) -> <a href="./src/mpesaflow/types/transaction_create_response.py">TransactionCreateResponse</a></code>
 - <code title="get /transactions/{transactionId}">client.transactions.<a href="./src/mpesaflow/resources/transactions.py">retrieve</a>(transaction_id) -> <a href="./src/mpesaflow/types/transaction.py">Transaction</a></code>
 - <code title="get /transactions/list">client.transactions.<a href="./src/mpesaflow/resources/transactions.py">list</a>(\*\*<a href="src/mpesaflow/types/transaction_list_params.py">params</a>) -> <a href="./src/mpesaflow/types/transaction.py">SyncCursorIDPagination[Transaction]</a></code>
-
-# Health
-
-Types:
-
-```python
-from mpesaflow.types import HealthRetrieveResponse
-```
-
-Methods:
-
-- <code title="get /health">client.health.<a href="./src/mpesaflow/resources/health.py">retrieve</a>() -> <a href="./src/mpesaflow/types/health_retrieve_response.py">HealthRetrieveResponse</a></code>
