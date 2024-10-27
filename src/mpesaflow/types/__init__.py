@@ -5,7 +5,6 @@ from __future__ import annotations
 from .application import Application as Application
 from .transaction import Transaction as Transaction
 from .app_list_params import AppListParams as AppListParams
-from .health_response import HealthResponse as HealthResponse
 from .app_create_params import AppCreateParams as AppCreateParams
 from .app_create_response import AppCreateResponse as AppCreateResponse
 from .app_delete_response import AppDeleteResponse as AppDeleteResponse
