@@ -12,9 +12,7 @@ from . import resources, _exceptions
 from ._qs import Querystring
 from ._types import (
     NOT_GIVEN,
-    Body,
     Omit,
-    Query,
     Headers,
     Timeout,
     NotGiven,
@@ -27,21 +25,13 @@ from ._utils import (
     get_async_library,
 )
 from ._version import __version__
-from ._response import (
-    to_raw_response_wrapper,
-    to_streamed_response_wrapper,
-    async_to_raw_response_wrapper,
-    async_to_streamed_response_wrapper,
-)
 from ._streaming import Stream as Stream, AsyncStream as AsyncStream
 from ._exceptions import APIStatusError
 from ._base_client import (
     DEFAULT_MAX_RETRIES,
     SyncAPIClient,
     AsyncAPIClient,
-    make_request_options,
 )
-from .types.health_response import HealthResponse
 
 __all__ = [
     "ENVIRONMENTS",
@@ -262,25 +252,6 @@ class Mpesaflow(SyncAPIClient):
     # Alias for `copy` for nicer inline usage, e.g.
     # client.with_options(timeout=10).foo.create(...)
     with_options = copy
-
-    def health(
-        self,
-        *,
-        # Use the following arguments if you need to pass additional parameters to the API that aren't available via kwargs.
-        # The extra values given here take precedence over values defined on the client or passed to this method.
-        extra_headers: Headers | None = None,
-        extra_query: Query | None = None,
-        extra_body: Body | None = None,
-        timeout: float | httpx.Timeout | None | NotGiven = NOT_GIVEN,
-    ) -> HealthResponse:
-        """Check server health"""
-        return self.get(
-            "/health",
-            options=make_request_options(
-                extra_headers=extra_headers, extra_query=extra_query, extra_body=extra_body, timeout=timeout
-            ),
-            cast_to=HealthResponse,
-        )
 
     @override
     def _make_status_error(
@@ -517,25 +488,6 @@ class AsyncMpesaflow(AsyncAPIClient):
     # client.with_options(timeout=10).foo.create(...)
     with_options = copy
 
-    async def health(
-        self,
-        *,
-        # Use the following arguments if you need to pass additional parameters to the API that aren't available via kwargs.
-        # The extra values given here take precedence over values defined on the client or passed to this method.
-        extra_headers: Headers | None = None,
-        extra_query: Query | None = None,
-        extra_body: Body | None = None,
-        timeout: float | httpx.Timeout | None | NotGiven = NOT_GIVEN,
-    ) -> HealthResponse:
-        """Check server health"""
-        return await self.get(
-            "/health",
-            options=make_request_options(
-                extra_headers=extra_headers, extra_query=extra_query, extra_body=extra_body, timeout=timeout
-            ),
-            cast_to=HealthResponse,
-        )
-
     @override
     def _make_status_error(
         self,
@@ -575,19 +527,11 @@ class MpesaflowWithRawResponse:
         self.apps = resources.AppsResourceWithRawResponse(client.apps)
         self.transactions = resources.TransactionsResourceWithRawResponse(client.transactions)
 
-        self.health = to_raw_response_wrapper(
-            client.health,
-        )
-
 
 class AsyncMpesaflowWithRawResponse:
     def __init__(self, client: AsyncMpesaflow) -> None:
         self.apps = resources.AsyncAppsResourceWithRawResponse(client.apps)
         self.transactions = resources.AsyncTransactionsResourceWithRawResponse(client.transactions)
-
-        self.health = async_to_raw_response_wrapper(
-            client.health,
-        )
 
 
 class MpesaflowWithStreamedResponse:
@@ -595,19 +539,11 @@ class MpesaflowWithStreamedResponse:
         self.apps = resources.AppsResourceWithStreamingResponse(client.apps)
         self.transactions = resources.TransactionsResourceWithStreamingResponse(client.transactions)
 
-        self.health = to_streamed_response_wrapper(
-            client.health,
-        )
-
 
 class AsyncMpesaflowWithStreamedResponse:
     def __init__(self, client: AsyncMpesaflow) -> None:
         self.apps = resources.AsyncAppsResourceWithStreamingResponse(client.apps)
         self.transactions = resources.AsyncTransactionsResourceWithStreamingResponse(client.transactions)
-
-        self.health = async_to_streamed_response_wrapper(
-            client.health,
-        )
 
 
 Client = Mpesaflow

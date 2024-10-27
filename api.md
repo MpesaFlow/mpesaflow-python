@@ -1,15 +1,3 @@
-# Mpesaflow
-
-Types:
-
-```python
-from mpesaflow.types import HealthResponse
-```
-
-Methods:
-
-- <code title="get /health">client.<a href="./src/mpesaflow/_client.py">health</a>() -> <a href="./src/mpesaflow/types/health_response.py">HealthResponse</a></code>
-
 # Apps
 
 Types:
