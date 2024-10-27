@@ -26,8 +26,9 @@ from ..._response import (
     async_to_raw_response_wrapper,
     async_to_streamed_response_wrapper,
 )
-from ..._base_client import make_request_options
-from ...types.app_list_response import AppListResponse
+from ...pagination import SyncCursorIDPagination, AsyncCursorIDPagination
+from ..._base_client import AsyncPaginator, make_request_options
+from ...types.application import Application
 from ...types.app_create_response import AppCreateResponse
 from ...types.app_delete_response import AppDeleteResponse
 
@@ -109,7 +110,7 @@ class AppsResource(SyncAPIResource):
         extra_query: Query | None = None,
         extra_body: Body | None = None,
         timeout: float | httpx.Timeout | None | NotGiven = NOT_GIVEN,
-    ) -> AppListResponse:
+    ) -> SyncCursorIDPagination[Application]:
         """
         List all applications
 
@@ -128,8 +129,9 @@ class AppsResource(SyncAPIResource):
 
           timeout: Override the client-level default timeout for this request, in seconds
         """
-        return self._get(
+        return self._get_api_list(
             "/apps/list",
+            page=SyncCursorIDPagination[Application],
             options=make_request_options(
                 extra_headers=extra_headers,
                 extra_query=extra_query,
@@ -144,7 +146,7 @@ class AppsResource(SyncAPIResource):
                     app_list_params.AppListParams,
                 ),
             ),
-            cast_to=AppListResponse,
+            model=Application,
         )
 
     def delete(
@@ -244,7 +246,7 @@ class AsyncAppsResource(AsyncAPIResource):
             cast_to=AppCreateResponse,
         )
 
-    async def list(
+    def list(
         self,
         *,
         ending_before: str | NotGiven = NOT_GIVEN,
@@ -256,7 +258,7 @@ class AsyncAppsResource(AsyncAPIResource):
         extra_query: Query | None = None,
         extra_body: Body | None = None,
         timeout: float | httpx.Timeout | None | NotGiven = NOT_GIVEN,
-    ) -> AppListResponse:
+    ) -> AsyncPaginator[Application, AsyncCursorIDPagination[Application]]:
         """
         List all applications
 
@@ -275,14 +277,15 @@ class AsyncAppsResource(AsyncAPIResource):
 
           timeout: Override the client-level default timeout for this request, in seconds
         """
-        return await self._get(
+        return self._get_api_list(
             "/apps/list",
+            page=AsyncCursorIDPagination[Application],
             options=make_request_options(
                 extra_headers=extra_headers,
                 extra_query=extra_query,
                 extra_body=extra_body,
                 timeout=timeout,
-                query=await async_maybe_transform(
+                query=maybe_transform(
                     {
                         "ending_before": ending_before,
                         "limit": limit,
@@ -291,7 +294,7 @@ class AsyncAppsResource(AsyncAPIResource):
                     app_list_params.AppListParams,
                 ),
             ),
-            cast_to=AppListResponse,
+            model=Application,
         )
 
     async def delete(
