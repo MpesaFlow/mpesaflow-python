@@ -8,6 +8,14 @@ from .apps import (
     AppsResourceWithStreamingResponse,
     AsyncAppsResourceWithStreamingResponse,
 )
+from .health import (
+    HealthResource,
+    AsyncHealthResource,
+    HealthResourceWithRawResponse,
+    AsyncHealthResourceWithRawResponse,
+    HealthResourceWithStreamingResponse,
+    AsyncHealthResourceWithStreamingResponse,
+)
 from .transactions import (
     TransactionsResource,
     AsyncTransactionsResource,
@@ -30,4 +38,10 @@ __all__ = [
     "AsyncTransactionsResourceWithRawResponse",
     "TransactionsResourceWithStreamingResponse",
     "AsyncTransactionsResourceWithStreamingResponse",
+    "HealthResource",
+    "AsyncHealthResource",
+    "HealthResourceWithRawResponse",
+    "AsyncHealthResourceWithRawResponse",
+    "HealthResourceWithStreamingResponse",
+    "AsyncHealthResourceWithStreamingResponse",
 ]
