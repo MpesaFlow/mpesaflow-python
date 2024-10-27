@@ -9,11 +9,8 @@ import pytest
 
 from mpesaflow import Mpesaflow, AsyncMpesaflow
 from tests.utils import assert_matches_type
-from mpesaflow.types import (
-    Transaction,
-    TransactionListResponse,
-    TransactionCreateResponse,
-)
+from mpesaflow.types import Transaction, TransactionCreateResponse
+from mpesaflow.pagination import SyncCursorIDPagination, AsyncCursorIDPagination
 
 base_url = os.environ.get("TEST_API_BASE_URL", "http://127.0.0.1:4010")
 
@@ -100,7 +97,7 @@ class TestTransactions:
         transaction = client.transactions.list(
             app_id="appId",
         )
-        assert_matches_type(TransactionListResponse, transaction, path=["response"])
+        assert_matches_type(SyncCursorIDPagination[Transaction], transaction, path=["response"])
 
     @parametrize
     def test_method_list_with_all_params(self, client: Mpesaflow) -> None:
@@ -110,7 +107,7 @@ class TestTransactions:
             limit=0,
             starting_after="starting_after",
         )
-        assert_matches_type(TransactionListResponse, transaction, path=["response"])
+        assert_matches_type(SyncCursorIDPagination[Transaction], transaction, path=["response"])
 
     @parametrize
     def test_raw_response_list(self, client: Mpesaflow) -> None:
@@ -121,7 +118,7 @@ class TestTransactions:
         assert response.is_closed is True
         assert response.http_request.headers.get("X-Stainless-Lang") == "python"
         transaction = response.parse()
-        assert_matches_type(TransactionListResponse, transaction, path=["response"])
+        assert_matches_type(SyncCursorIDPagination[Transaction], transaction, path=["response"])
 
     @parametrize
     def test_streaming_response_list(self, client: Mpesaflow) -> None:
@@ -132,7 +129,7 @@ class TestTransactions:
             assert response.http_request.headers.get("X-Stainless-Lang") == "python"
 
             transaction = response.parse()
-            assert_matches_type(TransactionListResponse, transaction, path=["response"])
+            assert_matches_type(SyncCursorIDPagination[Transaction], transaction, path=["response"])
 
         assert cast(Any, response.is_closed) is True
 
@@ -219,7 +216,7 @@ class TestAsyncTransactions:
         transaction = await async_client.transactions.list(
             app_id="appId",
         )
-        assert_matches_type(TransactionListResponse, transaction, path=["response"])
+        assert_matches_type(AsyncCursorIDPagination[Transaction], transaction, path=["response"])
 
     @parametrize
     async def test_method_list_with_all_params(self, async_client: AsyncMpesaflow) -> None:
@@ -229,7 +226,7 @@ class TestAsyncTransactions:
             limit=0,
             starting_after="starting_after",
         )
-        assert_matches_type(TransactionListResponse, transaction, path=["response"])
+        assert_matches_type(AsyncCursorIDPagination[Transaction], transaction, path=["response"])
 
     @parametrize
     async def test_raw_response_list(self, async_client: AsyncMpesaflow) -> None:
@@ -240,7 +237,7 @@ class TestAsyncTransactions:
         assert response.is_closed is True
         assert response.http_request.headers.get("X-Stainless-Lang") == "python"
         transaction = await response.parse()
-        assert_matches_type(TransactionListResponse, transaction, path=["response"])
+        assert_matches_type(AsyncCursorIDPagination[Transaction], transaction, path=["response"])
 
     @parametrize
     async def test_streaming_response_list(self, async_client: AsyncMpesaflow) -> None:
@@ -251,6 +248,6 @@ class TestAsyncTransactions:
             assert response.http_request.headers.get("X-Stainless-Lang") == "python"
 
             transaction = await response.parse()
-            assert_matches_type(TransactionListResponse, transaction, path=["response"])
+            assert_matches_type(AsyncCursorIDPagination[Transaction], transaction, path=["response"])
 
         assert cast(Any, response.is_closed) is True
