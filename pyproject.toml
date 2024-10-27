@@ -5,7 +5,7 @@ description = "The official Python library for the mpesaflow API"
 dynamic = ["readme"]
 license = "Apache-2.0"
 authors = [
-{ name = "Mpesaflow", email = "dev-feedback@mpesaflow.com" },
+{ name = "Mpesaflow", email = "support@mpesaflow.com" },
 ]
 dependencies = [
     "httpx>=0.23.0, <1",
@@ -36,8 +36,8 @@ classifiers = [
 ]
 
 [project.urls]
-Homepage = "https://github.com/stainless-sdks/mpesaflow-python"
-Repository = "https://github.com/stainless-sdks/mpesaflow-python"
+Homepage = "https://github.com/MpesaFlow/mpesaflow-python"
+Repository = "https://github.com/MpesaFlow/mpesaflow-python"
 
 
 
@@ -123,7 +123,7 @@ path = "README.md"
 [[tool.hatch.metadata.hooks.fancy-pypi-readme.substitutions]]
 # replace relative links with absolute links
 pattern = '\[(.+?)\]\(((?!https?://)\S+?)\)'
-replacement = '[\1](https://github.com/stainless-sdks/mpesaflow-python/tree/main/\g<2>)'
+replacement = '[\1](https://github.com/MpesaFlow/mpesaflow-python/tree/main/\g<2>)'
 
 [tool.pytest.ini_options]
 testpaths = ["tests"]

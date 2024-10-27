@@ -13,6 +13,7 @@ from ._qs import Querystring
 from ._types import (
     NOT_GIVEN,
     Omit,
+    Headers,
     Timeout,
     NotGiven,
     Transport,
@@ -25,7 +26,7 @@ from ._utils import (
 )
 from ._version import __version__
 from ._streaming import Stream as Stream, AsyncStream as AsyncStream
-from ._exceptions import APIStatusError, MpesaflowError
+from ._exceptions import APIStatusError
 from ._base_client import (
     DEFAULT_MAX_RETRIES,
     SyncAPIClient,
@@ -47,7 +48,7 @@ __all__ = [
 
 ENVIRONMENTS: Dict[str, str] = {
     "production": "https://api.mpesaflow.com",
-    "environment_1": "https://sandbox-api.mpesaflow.com",
+    "sandbox": "https://sandbox-api.mpesaflow.com",
 }
 
 
@@ -58,17 +59,17 @@ class Mpesaflow(SyncAPIClient):
     with_streaming_response: MpesaflowWithStreamedResponse
 
     # client options
-    app_api_key: str
-    root_api_key: str
+    app_api_key: str | None
+    root_api_key: str | None
 
-    _environment: Literal["production", "environment_1"] | NotGiven
+    _environment: Literal["production", "sandbox"] | NotGiven
 
     def __init__(
         self,
         *,
         app_api_key: str | None = None,
         root_api_key: str | None = None,
-        environment: Literal["production", "environment_1"] | NotGiven = NOT_GIVEN,
+        environment: Literal["production", "sandbox"] | NotGiven = NOT_GIVEN,
         base_url: str | httpx.URL | None | NotGiven = NOT_GIVEN,
         timeout: Union[float, Timeout, None, NotGiven] = NOT_GIVEN,
         max_retries: int = DEFAULT_MAX_RETRIES,
@@ -96,18 +97,10 @@ class Mpesaflow(SyncAPIClient):
         """
         if app_api_key is None:
             app_api_key = os.environ.get("APP_API_KEY")
-        if app_api_key is None:
-            raise MpesaflowError(
-                "The app_api_key client option must be set either by passing app_api_key to the client or by setting the APP_API_KEY environment variable"
-            )
         self.app_api_key = app_api_key
 
         if root_api_key is None:
             root_api_key = os.environ.get("ROOT_API_KEY")
-        if root_api_key is None:
-            raise MpesaflowError(
-                "The root_api_key client option must be set either by passing root_api_key to the client or by setting the ROOT_API_KEY environment variable"
-            )
         self.root_api_key = root_api_key
 
         self._environment = environment
@@ -169,11 +162,15 @@ class Mpesaflow(SyncAPIClient):
     @property
     def _app_api_key(self) -> dict[str, str]:
         app_api_key = self.app_api_key
+        if app_api_key is None:
+            return {}
         return {"X-App-Api-Key": app_api_key}
 
     @property
     def _root_api_key(self) -> dict[str, str]:
         root_api_key = self.root_api_key
+        if root_api_key is None:
+            return {}
         return {"X-Root-Api-Key": root_api_key}
 
     @property
@@ -185,12 +182,28 @@ class Mpesaflow(SyncAPIClient):
             **self._custom_headers,
         }
 
+    @override
+    def _validate_headers(self, headers: Headers, custom_headers: Headers) -> None:
+        if self.app_api_key and headers.get("X-App-Api-Key"):
+            return
+        if isinstance(custom_headers.get("X-App-Api-Key"), Omit):
+            return
+
+        if self.root_api_key and headers.get("X-Root-Api-Key"):
+            return
+        if isinstance(custom_headers.get("X-Root-Api-Key"), Omit):
+            return
+
+        raise TypeError(
+            '"Could not resolve authentication method. Expected either app_api_key or root_api_key to be set. Or for one of the `X-App-Api-Key` or `X-Root-Api-Key` headers to be explicitly omitted"'
+        )
+
     def copy(
         self,
         *,
         app_api_key: str | None = None,
         root_api_key: str | None = None,
-        environment: Literal["production", "environment_1"] | None = None,
+        environment: Literal["production", "sandbox"] | None = None,
         base_url: str | httpx.URL | None = None,
         timeout: float | Timeout | None | NotGiven = NOT_GIVEN,
         http_client: httpx.Client | None = None,
@@ -281,17 +294,17 @@ class AsyncMpesaflow(AsyncAPIClient):
     with_streaming_response: AsyncMpesaflowWithStreamedResponse
 
     # client options
-    app_api_key: str
-    root_api_key: str
+    app_api_key: str | None
+    root_api_key: str | None
 
-    _environment: Literal["production", "environment_1"] | NotGiven
+    _environment: Literal["production", "sandbox"] | NotGiven
 
     def __init__(
         self,
         *,
         app_api_key: str | None = None,
         root_api_key: str | None = None,
-        environment: Literal["production", "environment_1"] | NotGiven = NOT_GIVEN,
+        environment: Literal["production", "sandbox"] | NotGiven = NOT_GIVEN,
         base_url: str | httpx.URL | None | NotGiven = NOT_GIVEN,
         timeout: Union[float, Timeout, None, NotGiven] = NOT_GIVEN,
         max_retries: int = DEFAULT_MAX_RETRIES,
@@ -319,18 +332,10 @@ class AsyncMpesaflow(AsyncAPIClient):
         """
         if app_api_key is None:
             app_api_key = os.environ.get("APP_API_KEY")
-        if app_api_key is None:
-            raise MpesaflowError(
-                "The app_api_key client option must be set either by passing app_api_key to the client or by setting the APP_API_KEY environment variable"
-            )
         self.app_api_key = app_api_key
 
         if root_api_key is None:
             root_api_key = os.environ.get("ROOT_API_KEY")
-        if root_api_key is None:
-            raise MpesaflowError(
-                "The root_api_key client option must be set either by passing root_api_key to the client or by setting the ROOT_API_KEY environment variable"
-            )
         self.root_api_key = root_api_key
 
         self._environment = environment
@@ -392,11 +397,15 @@ class AsyncMpesaflow(AsyncAPIClient):
     @property
     def _app_api_key(self) -> dict[str, str]:
         app_api_key = self.app_api_key
+        if app_api_key is None:
+            return {}
         return {"X-App-Api-Key": app_api_key}
 
     @property
     def _root_api_key(self) -> dict[str, str]:
         root_api_key = self.root_api_key
+        if root_api_key is None:
+            return {}
         return {"X-Root-Api-Key": root_api_key}
 
     @property
@@ -408,12 +417,28 @@ class AsyncMpesaflow(AsyncAPIClient):
             **self._custom_headers,
         }
 
+    @override
+    def _validate_headers(self, headers: Headers, custom_headers: Headers) -> None:
+        if self.app_api_key and headers.get("X-App-Api-Key"):
+            return
+        if isinstance(custom_headers.get("X-App-Api-Key"), Omit):
+            return
+
+        if self.root_api_key and headers.get("X-Root-Api-Key"):
+            return
+        if isinstance(custom_headers.get("X-Root-Api-Key"), Omit):
+            return
+
+        raise TypeError(
+            '"Could not resolve authentication method. Expected either app_api_key or root_api_key to be set. Or for one of the `X-App-Api-Key` or `X-Root-Api-Key` headers to be explicitly omitted"'
+        )
+
     def copy(
         self,
         *,
         app_api_key: str | None = None,
         root_api_key: str | None = None,
-        environment: Literal["production", "environment_1"] | None = None,
+        environment: Literal["production", "sandbox"] | None = None,
         base_url: str | httpx.URL | None = None,
         timeout: float | Timeout | None | NotGiven = NOT_GIVEN,
         http_client: httpx.AsyncClient | None = None,

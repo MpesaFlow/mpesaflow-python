@@ -15,12 +15,9 @@ The REST API documentation can be found on [docs.mpesaflow.com](https://docs.mpe
 ## Installation
 
 ```sh
-# install from this staging repo
-pip install git+ssh://git@github.com/stainless-sdks/mpesaflow-python.git
+# install from PyPI
+pip install --pre mpesaflow
 ```
-
-> [!NOTE]
-> Once this package is [published to PyPI](https://app.stainlessapi.com/docs/guides/publish), this will become: `pip install --pre mpesaflow`
 
 ## Usage
 
@@ -34,11 +31,11 @@ client = Mpesaflow(
     # This is the default and can be omitted
     app_api_key=os.environ.get("APP_API_KEY"),
     # defaults to "production".
-    environment="environment_1",
+    environment="sandbox",
 )
 
-app = client.apps.create()
-print(app.application_id)
+transaction = client.transactions.create()
+print(transaction.message)
 ```
 
 While you can provide a `app_api_key` keyword argument,
@@ -59,13 +56,13 @@ client = AsyncMpesaflow(
     # This is the default and can be omitted
     app_api_key=os.environ.get("APP_API_KEY"),
     # defaults to "production".
-    environment="environment_1",
+    environment="sandbox",
 )
 
 
 async def main() -> None:
-    app = await client.apps.create()
-    print(app.application_id)
+    transaction = await client.transactions.create()
+    print(transaction.message)
 
 
 asyncio.run(main())
@@ -81,6 +78,77 @@ Nested request parameters are [TypedDicts](https://docs.python.org/3/library/typ
 - Converting to a dictionary, `model.to_dict()`
 
 Typed requests and responses provide autocomplete and documentation within your editor. If you would like to see type errors in VS Code to help catch bugs earlier, set `python.analysis.typeCheckingMode` to `basic`.
+
+## Pagination
+
+List methods in the Mpesaflow API are paginated.
+
+This library provides auto-paginating iterators with each list response, so you do not have to request successive pages manually:
+
+```python
+from mpesaflow import Mpesaflow
+
+client = Mpesaflow()
+
+all_transactions = []
+# Automatically fetches more pages as needed.
+for transaction in client.transactions.list(
+    app_id="appId",
+):
+    # Do something with transaction here
+    all_transactions.append(transaction)
+print(all_transactions)
+```
+
+Or, asynchronously:
+
+```python
+import asyncio
+from mpesaflow import AsyncMpesaflow
+
+client = AsyncMpesaflow()
+
+
+async def main() -> None:
+    all_transactions = []
+    # Iterate through items across all pages, issuing requests as needed.
+    async for transaction in client.transactions.list(
+        app_id="appId",
+    ):
+        all_transactions.append(transaction)
+    print(all_transactions)
+
+
+asyncio.run(main())
+```
+
+Alternatively, you can use the `.has_next_page()`, `.next_page_info()`, or `.get_next_page()` methods for more granular control working with pages:
+
+```python
+first_page = await client.transactions.list(
+    app_id="appId",
+)
+if first_page.has_next_page():
+    print(f"will fetch next page using these details: {first_page.next_page_info()}")
+    next_page = await first_page.get_next_page()
+    print(f"number of items we just fetched: {len(next_page.data)}")
+
+# Remove `await` for non-async usage.
+```
+
+Or just work directly with the returned data:
+
+```python
+first_page = await client.transactions.list(
+    app_id="appId",
+)
+
+print(f"next page cursor: {first_page.starting_after}")  # => "next page cursor: ..."
+for transaction in first_page.data:
+    print(transaction.id)
+
+# Remove `await` for non-async usage.
+```
 
 ## Handling errors
 
@@ -98,7 +166,7 @@ from mpesaflow import Mpesaflow
 client = Mpesaflow()
 
 try:
-    client.apps.create()
+    client.transactions.create()
 except mpesaflow.APIConnectionError as e:
     print("The server could not be reached")
     print(e.__cause__)  # an underlying Exception, likely raised within httpx.
@@ -141,7 +209,7 @@ client = Mpesaflow(
 )
 
 # Or, configure per-request:
-client.with_options(max_retries=5).apps.create()
+client.with_options(max_retries=5).transactions.create()
 ```
 
 ### Timeouts
@@ -164,7 +232,7 @@ client = Mpesaflow(
 )
 
 # Override per-request:
-client.with_options(timeout=5.0).apps.create()
+client.with_options(timeout=5.0).transactions.create()
 ```
 
 On timeout, an `APITimeoutError` is thrown.
@@ -203,16 +271,16 @@ The "raw" Response object can be accessed by prefixing `.with_raw_response.` to 
 from mpesaflow import Mpesaflow
 
 client = Mpesaflow()
-response = client.apps.with_raw_response.create()
+response = client.transactions.with_raw_response.create()
 print(response.headers.get('X-My-Header'))
 
-app = response.parse()  # get the object that `apps.create()` would have returned
-print(app.application_id)
+transaction = response.parse()  # get the object that `transactions.create()` would have returned
+print(transaction.message)
 ```
 
-These methods return an [`APIResponse`](https://github.com/stainless-sdks/mpesaflow-python/tree/main/src/mpesaflow/_response.py) object.
+These methods return an [`APIResponse`](https://github.com/MpesaFlow/mpesaflow-python/tree/main/src/mpesaflow/_response.py) object.
 
-The async client returns an [`AsyncAPIResponse`](https://github.com/stainless-sdks/mpesaflow-python/tree/main/src/mpesaflow/_response.py) with the same structure, the only difference being `await`able methods for reading the response content.
+The async client returns an [`AsyncAPIResponse`](https://github.com/MpesaFlow/mpesaflow-python/tree/main/src/mpesaflow/_response.py) with the same structure, the only difference being `await`able methods for reading the response content.
 
 #### `.with_streaming_response`
 
@@ -221,7 +289,7 @@ The above interface eagerly reads the full response body when you make the reque
 To stream the response body, use `.with_streaming_response` instead, which requires a context manager and only reads the response body once you call `.read()`, `.text()`, `.json()`, `.iter_bytes()`, `.iter_text()`, `.iter_lines()` or `.parse()`. In the async client, these are async methods.
 
 ```python
-with client.apps.with_streaming_response.create() as response:
+with client.transactions.with_streaming_response.create() as response:
     print(response.headers.get("X-My-Header"))
 
     for line in response.iter_lines():
@@ -306,7 +374,7 @@ This package generally follows [SemVer](https://semver.org/spec/v2.0.0.html) con
 
 We take backwards-compatibility seriously and work hard to ensure you can rely on a smooth upgrade experience.
 
-We are keen for your feedback; please open an [issue](https://www.github.com/stainless-sdks/mpesaflow-python/issues) with questions, bugs, or suggestions.
+We are keen for your feedback; please open an [issue](https://www.github.com/MpesaFlow/mpesaflow-python/issues) with questions, bugs, or suggestions.
 
 ### Determining the installed version
 

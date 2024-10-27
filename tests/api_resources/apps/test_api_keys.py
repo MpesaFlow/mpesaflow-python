@@ -9,6 +9,7 @@ import pytest
 
 from mpesaflow import Mpesaflow, AsyncMpesaflow
 from tests.utils import assert_matches_type
+from mpesaflow.pagination import SyncCursorIDPagination, AsyncCursorIDPagination
 from mpesaflow.types.apps import (
     APIKeyListResponse,
     APIKeyCreateResponse,
@@ -72,7 +73,7 @@ class TestAPIKeys:
         api_key = client.apps.api_keys.list(
             app_id="appId",
         )
-        assert_matches_type(APIKeyListResponse, api_key, path=["response"])
+        assert_matches_type(SyncCursorIDPagination[APIKeyListResponse], api_key, path=["response"])
 
     @parametrize
     def test_method_list_with_all_params(self, client: Mpesaflow) -> None:
@@ -82,7 +83,7 @@ class TestAPIKeys:
             limit=0,
             starting_after="starting_after",
         )
-        assert_matches_type(APIKeyListResponse, api_key, path=["response"])
+        assert_matches_type(SyncCursorIDPagination[APIKeyListResponse], api_key, path=["response"])
 
     @parametrize
     def test_raw_response_list(self, client: Mpesaflow) -> None:
@@ -93,7 +94,7 @@ class TestAPIKeys:
         assert response.is_closed is True
         assert response.http_request.headers.get("X-Stainless-Lang") == "python"
         api_key = response.parse()
-        assert_matches_type(APIKeyListResponse, api_key, path=["response"])
+        assert_matches_type(SyncCursorIDPagination[APIKeyListResponse], api_key, path=["response"])
 
     @parametrize
     def test_streaming_response_list(self, client: Mpesaflow) -> None:
@@ -104,7 +105,7 @@ class TestAPIKeys:
             assert response.http_request.headers.get("X-Stainless-Lang") == "python"
 
             api_key = response.parse()
-            assert_matches_type(APIKeyListResponse, api_key, path=["response"])
+            assert_matches_type(SyncCursorIDPagination[APIKeyListResponse], api_key, path=["response"])
 
         assert cast(Any, response.is_closed) is True
 
@@ -218,7 +219,7 @@ class TestAsyncAPIKeys:
         api_key = await async_client.apps.api_keys.list(
             app_id="appId",
         )
-        assert_matches_type(APIKeyListResponse, api_key, path=["response"])
+        assert_matches_type(AsyncCursorIDPagination[APIKeyListResponse], api_key, path=["response"])
 
     @parametrize
     async def test_method_list_with_all_params(self, async_client: AsyncMpesaflow) -> None:
@@ -228,7 +229,7 @@ class TestAsyncAPIKeys:
             limit=0,
             starting_after="starting_after",
         )
-        assert_matches_type(APIKeyListResponse, api_key, path=["response"])
+        assert_matches_type(AsyncCursorIDPagination[APIKeyListResponse], api_key, path=["response"])
 
     @parametrize
     async def test_raw_response_list(self, async_client: AsyncMpesaflow) -> None:
@@ -239,7 +240,7 @@ class TestAsyncAPIKeys:
         assert response.is_closed is True
         assert response.http_request.headers.get("X-Stainless-Lang") == "python"
         api_key = await response.parse()
-        assert_matches_type(APIKeyListResponse, api_key, path=["response"])
+        assert_matches_type(AsyncCursorIDPagination[APIKeyListResponse], api_key, path=["response"])
 
     @parametrize
     async def test_streaming_response_list(self, async_client: AsyncMpesaflow) -> None:
@@ -250,7 +251,7 @@ class TestAsyncAPIKeys:
             assert response.http_request.headers.get("X-Stainless-Lang") == "python"
 
             api_key = await response.parse()
-            assert_matches_type(APIKeyListResponse, api_key, path=["response"])
+            assert_matches_type(AsyncCursorIDPagination[APIKeyListResponse], api_key, path=["response"])
 
         assert cast(Any, response.is_closed) is True
 
