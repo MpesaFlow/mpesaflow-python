@@ -8,7 +8,7 @@ __all__ = ["Application"]
 
 
 class Application(BaseModel):
-    id: Optional[str] = None
+    id: str
 
     description: Optional[str] = None
 
