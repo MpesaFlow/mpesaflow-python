@@ -16,7 +16,7 @@ The REST API documentation can be found on [docs.mpesaflow.com](https://docs.mpe
 
 ```sh
 # install from PyPI
-pip install --pre mpesaflow
+pip install mpesaflow
 ```
 
 ## Usage
