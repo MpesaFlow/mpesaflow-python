@@ -55,6 +55,7 @@ ENVIRONMENTS: Dict[str, str] = {
 class Mpesaflow(SyncAPIClient):
     apps: resources.AppsResource
     transactions: resources.TransactionsResource
+    health: resources.HealthResource
     with_raw_response: MpesaflowWithRawResponse
     with_streaming_response: MpesaflowWithStreamedResponse
 
@@ -142,6 +143,7 @@ class Mpesaflow(SyncAPIClient):
 
         self.apps = resources.AppsResource(self)
         self.transactions = resources.TransactionsResource(self)
+        self.health = resources.HealthResource(self)
         self.with_raw_response = MpesaflowWithRawResponse(self)
         self.with_streaming_response = MpesaflowWithStreamedResponse(self)
 
@@ -290,6 +292,7 @@ class Mpesaflow(SyncAPIClient):
 class AsyncMpesaflow(AsyncAPIClient):
     apps: resources.AsyncAppsResource
     transactions: resources.AsyncTransactionsResource
+    health: resources.AsyncHealthResource
     with_raw_response: AsyncMpesaflowWithRawResponse
     with_streaming_response: AsyncMpesaflowWithStreamedResponse
 
@@ -377,6 +380,7 @@ class AsyncMpesaflow(AsyncAPIClient):
 
         self.apps = resources.AsyncAppsResource(self)
         self.transactions = resources.AsyncTransactionsResource(self)
+        self.health = resources.AsyncHealthResource(self)
         self.with_raw_response = AsyncMpesaflowWithRawResponse(self)
         self.with_streaming_response = AsyncMpesaflowWithStreamedResponse(self)
 
@@ -526,24 +530,28 @@ class MpesaflowWithRawResponse:
     def __init__(self, client: Mpesaflow) -> None:
         self.apps = resources.AppsResourceWithRawResponse(client.apps)
         self.transactions = resources.TransactionsResourceWithRawResponse(client.transactions)
+        self.health = resources.HealthResourceWithRawResponse(client.health)
 
 
 class AsyncMpesaflowWithRawResponse:
     def __init__(self, client: AsyncMpesaflow) -> None:
         self.apps = resources.AsyncAppsResourceWithRawResponse(client.apps)
         self.transactions = resources.AsyncTransactionsResourceWithRawResponse(client.transactions)
+        self.health = resources.AsyncHealthResourceWithRawResponse(client.health)
 
 
 class MpesaflowWithStreamedResponse:
     def __init__(self, client: Mpesaflow) -> None:
         self.apps = resources.AppsResourceWithStreamingResponse(client.apps)
         self.transactions = resources.TransactionsResourceWithStreamingResponse(client.transactions)
+        self.health = resources.HealthResourceWithStreamingResponse(client.health)
 
 
 class AsyncMpesaflowWithStreamedResponse:
     def __init__(self, client: AsyncMpesaflow) -> None:
         self.apps = resources.AsyncAppsResourceWithStreamingResponse(client.apps)
         self.transactions = resources.AsyncTransactionsResourceWithStreamingResponse(client.transactions)
+        self.health = resources.AsyncHealthResourceWithStreamingResponse(client.health)
 
 
 Client = Mpesaflow
